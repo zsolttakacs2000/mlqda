@@ -1,0 +1,36 @@
+body {
+	background-image: url("../images/background.jpg");
+	background-size: cover;
+}
+
+
+.navbar {
+  background-color: #FFF;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.navbar a {
+  float: right;
+  color: #000;
+  text-align: center;
+  padding: 20px 20px;
+  text-decoration: none;
+  font-size: 30px;
+}
+
+.navbar a:hover {
+  background-color: #003865;
+  color: #FFF;
+}
+
+.maintext {
+  color: #FFF;
+  text-align: center;
+  padding-left: 45%;
+  padding-top: 2.5%;
+  padding-right: 2.5%;
+  font-size: 25px;
+}
