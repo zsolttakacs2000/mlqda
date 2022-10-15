@@ -6,8 +6,8 @@ def index(request):
     return render(request, 'mlqda/index.html', context=context_dict)
 
 def about(request):
-    return HttpResponse('about')
-
+    context_dict = {}
+    return render(request, 'mlqda/about.html', context=context_dict)
 def analyser(request):
     return HttpResponse('analyser')
 
