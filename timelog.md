@@ -39,8 +39,21 @@
 * *0.5 hours* Create agenda for next week and compile progress
 
 ### 11 Oct 2022
+
 * *0.5 hours* Second supervisor meeting
 * *0.5 hours* Write and send minutes of meeting
+
+### 12 Oct 2022
+
+* *2 hours* Update Figma design and add new requiremnts
+
+### 13 Oct 2022
+
+* *2 hours* Set up development environment (Django, Github repo, issues and milestones)
+
+### 14 Oct 2022
+* *2 hours* Create base template and home page (Issue #1)
+
 
 
 

@@ -21,6 +21,11 @@ body {
   font-size: 30px;
 }
 
+.navbar img {
+  float: left;
+  padding-left: 0;
+}
+
 .navbar a:hover {
   background-color: #003865;
   color: #FFF;

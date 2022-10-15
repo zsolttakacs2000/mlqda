@@ -12,4 +12,5 @@ def analyser(request):
     return HttpResponse('analyser')
 
 def contact(request):
-    return HttpResponse('contact')
+    context_dict = {}
+    return render(request, 'mlqda/contact.html', context=context_dict)
