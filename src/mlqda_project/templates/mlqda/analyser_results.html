@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% extends 'mlqda/base.html' %}
+{% load static %}
+
+{% block title_block%}
+	Contact
+{% endblock %}
+
+{% block body_block %}
+	<div class="maintext">
+		The script identified {{ total_topics }} topics in your files.
+		</br></br>
+		{% for topic, tuple in topics.items %}
+			<div class="topic_list">
+				{{topic}}
+				</br></br>
+				{% for word, contrib in tuple %}		
+					{{word}}: {{contrib}}
+					</br></br>
+				{% endfor %}
+				</br></br>
+			</div>
+		{% endfor %}
+		</br></br>
+		<button type="submit" name="submit" class="general_button" onclick="window.open('{% static 'images/logo.png' %}')">
+			<p class="button_text"> Download results </p>
+		</button>
+		</br></br>
+		<button type="submit" name="submit" class="general_button" onclick="window.open('{% static 'images/logo.png' %}')">
+			<p class="button_text"> Download annotated files </p>
+		</button>		
+	</div>
+{% endblock %}

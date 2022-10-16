@@ -40,3 +40,34 @@ body {
   padding-top: 100px;
   font-size: 25px;
 }
+
+.file_upload {
+  text-align:right;
+}
+
+.file_upload form {
+  color: #FFF;
+  padding-top: 2.5%;
+}
+
+.general_button {
+  background-color: #FFF;
+  padding: 1em;
+  width: max-content;
+  height: min-content;
+  border-radius: 30px;
+}
+
+.general_button:hover{
+    background-color: #003865;
+}
+
+.button_text{
+    color: #000;
+    font: bold;
+}
+
+.general_button:hover p{
+    color: #FFF;
+	font: bold;
+}

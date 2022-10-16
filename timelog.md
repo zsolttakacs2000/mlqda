@@ -52,10 +52,16 @@
 * *2 hours* Set up development environment (Django, Github repo, issues and milestones)
 
 ### 14 Oct 2022
+
 * *2 hours* Create base template and home page (Issue #1)
 
+### 15 Oct 2022
 
+* *0.5 hours* Create contact and about page (Issue #2 and #3)
 
+### 16 Oct 2022
+
+* *3 hours* Create analyser pages (Issue #4)
 
 
 
