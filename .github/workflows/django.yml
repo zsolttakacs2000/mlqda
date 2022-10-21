@@ -51,4 +51,4 @@ jobs:
       - name: Run Linter
         run: |
           cd src/mlqda_project/
-          flake8 --max-line-length 99 --per-file-ignores mlqda\admin.py:F401
+          flake8 --max-line-length 99
