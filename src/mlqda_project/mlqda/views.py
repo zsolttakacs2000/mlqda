@@ -20,6 +20,7 @@ def save_file(file):
         for chunk in file.chunks():
             destination.write(chunk)
 
+
 def index(request):
     """
     Function to link index/home view
@@ -29,6 +30,7 @@ def index(request):
     context_dict = {}
     return render(request, 'mlqda/index.html', context=context_dict)
 
+
 def about(request):
     """
     Function to link about view
@@ -37,6 +39,7 @@ def about(request):
     """
     context_dict = {}
     return render(request, 'mlqda/about.html', context=context_dict)
+
 
 def analyser_start(request):
     """
@@ -57,6 +60,7 @@ def analyser_start(request):
     context_dict['form'] = form
     return render(request, 'mlqda/analyser_start.html', context=context_dict)
 
+
 def contact(request):
     """
     Function to link contact view
@@ -65,6 +69,7 @@ def contact(request):
     """
     context_dict = {}
     return render(request, 'mlqda/contact.html', context=context_dict)
+
 
 def analyser_results(request):
     """
@@ -87,6 +92,7 @@ def analyser_results(request):
                     }
     context_dict['total_topics'] = len(context_dict['topics'])
     return render(request, 'mlqda/analyser_results.html', context=context_dict)
+
 
 def analyser_redirect(request):
     """
