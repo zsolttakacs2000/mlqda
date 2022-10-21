@@ -29,6 +29,10 @@ jobs:
     - name: Run Tests
       run: |
         python src/mlqda_project/manage.py test mlqda
+    - name: Coverage Report
+      run: |
+         coverage run src/mlqda_project/manage.py test mlqda
+         coverage report -m
 
 
   linting:
