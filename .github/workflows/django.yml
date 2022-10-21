@@ -50,4 +50,5 @@ jobs:
           pip install pylint pylint-django
       - name: Run Linter
         run: |
-          shopt -s globstar && pylint --load-plugins pylint_django --django-settings-module=src/mlqda_project/mlqda_project/settings.py **/*.py
+          cd src/mlqda_project
+          shopt -s globstar && pylint --load-plugins pylint_django --django-settings-module=mlqda_project.settings.py **/*.py
