@@ -1,3 +1,9 @@
+"""
+mlqda_app url patterns
+
+maps views to urls within the app
+"""
+
 from django.urls import path
 from mlqda import views
 

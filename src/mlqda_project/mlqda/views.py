@@ -1,10 +1,19 @@
+"""
+Python files to contain views for the MLQDA webapp
+"""
+
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from mlqda.forms import FileForm
 from django.urls import reverse
+
+from mlqda.forms import FileForm
 
 
 def save_file(file):
+    """
+    Helper function to save files to media folder
+    @param file: file to be saved
+    @return: None
+    """
     file_name = str(file)
     file_path = 'media/' + file_name
     with open(file_path, 'wb+') as destination:
@@ -12,14 +21,29 @@ def save_file(file):
             destination.write(chunk)
 
 def index(request):
+    """
+    Function to link index/home view
+    @param request: incoming request
+    @return: rendered home page as an html - mlqda/index.html
+    """
     context_dict = {}
     return render(request, 'mlqda/index.html', context=context_dict)
 
 def about(request):
+    """
+    Function to link about view
+    @param request: incoming request
+    @return: rendered about page as an html - mlqda/about.html
+    """
     context_dict = {}
     return render(request, 'mlqda/about.html', context=context_dict)
 
 def analyser_start(request):
+    """
+    Function to link to the starting view of the analyser
+    @param request: incoming request
+    @return: rendered start page (mlqda/index.html) or the redirect page (mlqda/analyser-redirect)
+    """
     context_dict = {}
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
@@ -34,10 +58,21 @@ def analyser_start(request):
     return render(request, 'mlqda/analyser_start.html', context=context_dict)
 
 def contact(request):
+    """
+    Function to link contact view
+    @param request: incoming request
+    @return: rendered about page as an html - mlqda/contact.html
+    """
     context_dict = {}
     return render(request, 'mlqda/contact.html', context=context_dict)
 
 def analyser_results(request):
+    """
+    Function to link result view of the analyser
+    @param request: incoming request
+    @return: rendered about page as an html with the results included in the
+    context dictionary - mlqda/analyser_results.html
+    """
     context_dict = {'topics': {'Topic 1': [('Network', 0.0300),
                                            ('Connection', 0.0280),
                                            ('Internet', 0.0250),
@@ -54,5 +89,10 @@ def analyser_results(request):
     return render(request, 'mlqda/analyser_results.html', context=context_dict)
 
 def analyser_redirect(request):
+    """
+    Function to link the redirect view of the analyser
+    @param request: incoming request
+    @return: rendered about page as an html - mlqda/analyser_redirect.html
+    """
     context_dict = {}
     return render(request, 'mlqda/analyser_redirect.html', context=context_dict)
