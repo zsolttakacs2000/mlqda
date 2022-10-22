@@ -70,3 +70,12 @@ class ViewTests(TestCase):
         test_doc = SimpleUploadedFile('test_text.txt', test_content.encode(), 'text/plain')
         response = self.client.post(reverse('mlqda:analyser-start'), {'file': test_doc})
         self.assertEqual(response.status_code, 302)
+
+    def test_faq(self):
+        """
+        Testing if about page loads correctly
+        """
+        response = self.client.get(reverse('mlqda:faq'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response,
+                            'How do I remove these unnecesarry texts?')
