@@ -74,10 +74,12 @@
 
 * *1 hours* Set up Django CI pipeline (Issue #6)
 * *0.5 hours* Update requirements to include more about the ML script
-* *0.5 hours* Work on testing existing features (basic views
+* *0.5 hours* Work on testing existing features (basic views)
 * *0.5 hours* Work on linting and trying to set up lint check on CI pipeline
+* *2 hours* Fixing linting and set up linting, coverage and testing parts of CI pipeline
 
+### 21 Oct 2022
 
-
-
+* *1.5 hours* Create System Architecture Diagram
+* *0.5 hours* Add unit tests
 
