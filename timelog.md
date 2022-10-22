@@ -39,10 +39,47 @@
 * *0.5 hours* Create agenda for next week and compile progress
 
 ### 11 Oct 2022
+
 * *0.5 hours* Second supervisor meeting
 * *0.5 hours* Write and send minutes of meeting
 
+### 12 Oct 2022
 
+* *2 hours* Update Figma design and add new requiremnts
 
+### 13 Oct 2022
 
+* *2 hours* Set up development environment (Django, Github repo, issues and milestones)
+
+### 14 Oct 2022
+
+* *2 hours* Create base template and home page (Issue #1)
+
+### 15 Oct 2022
+
+* *0.5 hours* Create contact and about page (Issue #2 and #3)
+
+### 16 Oct 2022
+
+* *3 hours* Create analyser pages (Issue #4)
+* *1.5 hours* Deploy project on PythonAnywhere (Issue #7)
+* *0.5 hours* Create agenda for next week and compile progress
+
+### 18 Oct 2022
+
+* *0.5 hours* Second supervisor meeting
+* *0.5 hours* Write and send minutes of meeting
+
+### 21 Oct 2022
+
+* *1 hours* Set up Django CI pipeline (Issue #6)
+* *0.5 hours* Update requirements to include more about the ML script
+* *0.5 hours* Work on testing existing features (basic views)
+* *0.5 hours* Work on linting and trying to set up lint check on CI pipeline
+* *2 hours* Fixing linting and set up linting, coverage and testing parts of CI pipeline
+
+### 21 Oct 2022
+
+* *1.5 hours* Create System Architecture Diagram
+* *0.5 hours* Add unit tests
 

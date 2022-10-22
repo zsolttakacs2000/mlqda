@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html>
+	<head lang="en">
+		<meta charset="UTF-8" />
+		<title>MLQDA</title>
+		<!-- CSS -->
+		<link rel="stylesheet" href="{% static 'css/base.css' %}" />
+		<!-- JavaScript -->
+		<script src="{% static 'js/jquery.js' %}"></script>
+	</head>
+	<body>
+		<div class="navbar">
+			<img src="{% static 'images/logo.png' %}" alt="Logo" height="75">
+			<strong><a href="{% url 'mlqda:contact' %}">Contact</a></strong>
+			<strong><a href="{% url 'mlqda:about' %}">About</a></strong>
+			<strong><a href="{% url 'mlqda:analyser-start' %}">Analyser</a></strong>
+			<strong><a href="{% url 'mlqda:index' %}">Home</a></strong>
+		</div>
+		{% block body_block %}
+		{% endblock %}
+	</body>
+</html>

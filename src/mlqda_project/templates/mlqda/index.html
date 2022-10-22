@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% extends 'mlqda/base.html' %}
+{% load static %}
+
+{% block title_block%}
+	Home
+{% endblock %}
+
+{% block body_block %}
+	<h1>Welcome!</h1>
+	<div class="maintext">
+		Welcome to the Machine Learning Qualitative Data Analyzer.
+		Please be careful when you upload your text files to conform to expected constraints.
+		</br>
+		</br>
+		Simply upload your files and the app will try to identify the optimal number of topics
+		throughout your text. Furthermore, each topic will be displayed with the top five most important words. 
+		</br>
+		</br>
+		Use this tool to confirm your analysis of qualitative data or as a starting point to identify the themes you could potentaially uncover.
+	</div>
+{% endblock %}
