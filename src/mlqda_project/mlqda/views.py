@@ -8,6 +8,7 @@ from django.conf import settings
 
 from mlqda.forms import FileForm
 import os
+from pathlib import Path
 
 
 def save_file(file):
@@ -19,6 +20,8 @@ def save_file(file):
     my_media_root = settings.MEDIA_ROOT
     file_name = str(file)
     file_path = os.path.join(my_media_root, file_name)
+    output_file = Path(file_path)
+    output_file.parent.mkdir(exist_ok=True, parents=True)
     with open(file_path, 'wb+') as destination:
         for chunk in file.chunks():
             destination.write(chunk)
