@@ -108,3 +108,13 @@ def analyser_redirect(request):
     """
     context_dict = {}
     return render(request, 'mlqda/analyser_redirect.html', context=context_dict)
+
+
+def faq_page(request):
+    """
+    Function to link the FAQ view to the  correct template
+    @param request: incoming request
+    @return: rendered about page as an html - mlqda/faq.html
+    """
+    context_dict = {}
+    return render(request, 'mlqda/faq.html', context=context_dict)

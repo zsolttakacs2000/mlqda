@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+{% extends 'mlqda/base.html' %}
+{% load static %}
+
+{% block title_block%}
+	FAQ - Frequently Asked Questions
+{% endblock %}
+
+{% block body_block %}
+	<div class="maintext">
+		<h1>Frequently Asked Questions</h1>
+		</br>
+		<h2>Why do I need to prepare my files?</h2>
+		<p>The current implementation of the underlying machine learning script cannot identify the unnecesarry parts of your text files.
+		Identifying recurring snippets of raw text is important but not something within the current scope of the software.
+		Leaving these unnecessary texts in, could lead to your results being wrong.
+		For example, if you keep the pseudonym for the participant in the text, the script could pick it up as an important word for a topic becuse it is recurring often.
+		However, in reality, the pseudonym of the participant does not carry any meaningful imformation regarding th underlying topics of your data.
+		For this reason we ask you to remove any text that is not the text you want to analyse.
+		</br>
+		<strong>The current implementation does not support warnings if your text is not prepared correctly.</strong></p>
+
+		</br>		
+		<h2>What pieces of texts should I remove from my files?</h2>
+		<p>Strictly speaking any text that you do not wish to analyse. Most commonly these include:
+		Speaker names, Interview/focus group questions, Page numbers, Headers, Particiapnt information </p>
+		
+		</br>
+		<h2>How do I remove these unnecesarry texts?</h2>
+		<p>There are mult ways to go on about this. Probably the easiest way is to make a copy of your files and just delete the lines that should not be included in the analysis.
+		After deleteing these lines, you can upload your new files in the Analyser tab.</p>
+		
+		</br>
+		<h2>How do I get my results?</h2>
+		<p>After uploading your files, to site should take you a redirect page.
+		Once your results have been analysed you should be automatically redirected to the results page where you can find your results.</p>
+		
+		</br>
+		<h2>How do I download my results?</h2>
+		<p>From the download page you can access the most important results files individually or you can download every file in zip folder.</p>
+		
+		</br>
+		<h2>How do I interpret my results?</h2>
+		<p>Your results consits of multple parts withy varying level of depth.
+		Firstly, you should recive a list of the most important words grouped by topic.
+		These topics are not definied so you need to deduct the content of the topics based on these words.
+		Furthermore, you should receive a version of your original files where the sentences that contain one of the topic words are highlighted.
+		Finally, there are also a set of other files containing the transformed data like a document-term matrix. You can use these files to run your own script potentially.
+		</p>
+		
+		</br>
+		<h2>How do I open my results?</h2>
+		<p>The results come in easily accessable formats like .txt or .pdf files.</p>
+
+	</div>
+{% endblock %}

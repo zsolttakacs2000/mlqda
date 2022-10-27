@@ -16,4 +16,5 @@ urlpatterns = [
     path('analyser-results/', views.analyser_results, name='analyser-results'),
     path('analyser-redirect/', views.analyser_redirect, name='analyser-redirect'),
     path('contact/', views.contact, name='contact'),
+    path('faq/', views.faq_page, name='faq'),
 ]

@@ -8,17 +8,56 @@
 
 {% block body_block %}
 	<div class="maintext">
-		This app is a container for a code to enable people to evaluate their 
-		qualitaive data. Within the scope of this app, we used LDA topic modelling
-		to identify topics in qualitive data similar to a thematic analysis. 
-		</br></br>
-		Our aim was to develop an app that would confirm a reserchers ideas
-		about their dataset in a way that would be slightly more independent and 
-		reproducable.
-		</br></br>
-		If you wish to read more about the idea to use machine learning algorithms
-		to analyse qualitaive data or research papers that already used similar techniques
-		you can read the following resources
+		<h2>General information</h2>
+			<p>
+				This app is a container for a code to enable people to evaluate their 
+				qualitaive data. Within the scope of this app, we used LDA topic modelling
+				to identify topics in qualitive data similar to a thematic analysis.
+			</p>
+			<p>
+				Our aim was to develop an app that would confirm a reserchers ideas
+				about their dataset in a way that would be slightly more independent and 
+				reproducable.
+			</p>
+			<p>
+				If you wish to read more about the idea to use machine learning algorithms
+				to analyse qualitaive data or research papers that already used similar techniques
+				you can read the following resources
+			</p>
+		<h2>How does the underlying script works?</h2>
+			<h3>Pre-processing</h3>
+			<p>
+				First, your texh will be processed and transformed into a format that will be used in a machien learning algorithm.
+				This means, that your text will be seperated into single words, then they will be lemmatized.
+				This allows us to identify words in different grammatical forms as the same.
+				The final step of pre-processing is to remove all stopwords.
+				Stopwords are part of language that do not carry any meaning of content. Their primary function is to make sentences gramatically correct. 
+				As our model focuses on content, we can safely remove these words. 
+			</p>
+			<h3>N-grams</h3>
+			<p>
+				N-grams represent word combination to the degree of N. Our current implementatiuon ises bi-grams, so it contains the combinations of two words.
+			</p>
+			<h3>id2word and bow</h3>
+			<p>
+				id2word objects are in essential dictionaries to map a unique id to a word.
+				bow-s (Bag-of-Words) are the grouped version of this dictionary where groups are based on the origin document.
+			</p>
+			<h3>LDA models</h3>
+			<p>
+				Using the previous data structures, the LDA model randomly alloctaes word combinations to a <strong>pre-set number of topics </strong> 
+				throughout a <strong>pre-set number of iterations</strong>. The model returns the top 10 words connected to the proposed unerlying themes.
+				The themes are unnamed, hence they need human deduction to actually infere the theme. 
+			</p>
+			<h3>Result files</h3>
+			<p>
+				Using the results from the LDA model, the system will compile multiple files to help you understand them. 
+				Firstly the returned themes are written to an easily accessable txt file.
+				Then the sentences in your original files are highlighted based on which of the themes appear in them.
+				This could help you with your coding in a thematic analysis.
+				Finally, the contribution of the top words are plotted to better display their values.
+			</p>
+		
 		<h2>Resources</h2>
 		<ul>
 			<li> Crowston, K., Allen, E. E., & Heckman, R. (2012).
