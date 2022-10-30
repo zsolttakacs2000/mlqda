@@ -4,27 +4,9 @@ Python files to contain views for the MLQDA webapp
 
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.conf import settings
 
 from mlqda.forms import FileForm
-import os
-from pathlib import Path
-
-
-def save_file(file):
-    """
-    Helper function to save files to media folder
-    @param file: file to be saved
-    @return: None
-    """
-    my_media_root = settings.MEDIA_ROOT
-    file_name = str(file)
-    file_path = os.path.join(my_media_root, file_name)
-    output_file = Path(file_path)
-    output_file.parent.mkdir(exist_ok=True, parents=True)
-    with open(file_path, 'wb+') as destination:
-        for chunk in file.chunks():
-            destination.write(chunk)
+from mlqda.models import FileCollector, FileContainer
 
 
 def index(request):
@@ -58,8 +40,11 @@ def analyser_start(request):
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             files = request.FILES.getlist('file')
+            collector = FileCollector(first_name=str(files[0]))
+            collector.save()
             for file in files:
-                save_file(file)
+                current_file = FileContainer.objects.create(file=file, first_name=collector)
+                current_file.save()
             return redirect(reverse('mlqda:analyser-redirect'))
     else:
         form = FileForm()
