@@ -14,7 +14,7 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('analyser-start/', views.analyser_start, name='analyser-start'),
     path('analyser-results/', views.analyser_results, name='analyser-results'),
-    path('analyser-redirect/', views.analyser_redirect, name='analyser-redirect'),
+    path('analyser-redirect/<collector_id>/', views.analyser_redirect, name='analyser-redirect'),
     path('contact/', views.contact, name='contact'),
     path('faq/', views.faq_page, name='faq'),
 ]

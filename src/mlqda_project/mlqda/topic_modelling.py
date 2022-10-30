@@ -102,3 +102,7 @@ class TopicModelling:
                                                     passes=10,
                                                     alpha="auto")
         self.lda_model = lda_model
+
+    def get_lda_output(self):
+        topics = self.lda_model.print_topics()
+        return topics
