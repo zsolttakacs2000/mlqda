@@ -83,3 +83,33 @@
 * *1.5 hours* Create System Architecture Diagram
 * *0.5 hours* Add unit tests
 
+### 25 Oct 2022
+
+* *0.5 hours* Supervisor meeting
+* *0.5 hours* Create minutes
+
+### 27 Oct 2022
+
+* *0.5 hours* Update content on FAQ and about pages
+* *0.5 hours* Admin - create issues regarding LDA script development
+
+### 27 Oct 2022
+
+* *1.0 hours* Work on inital ML script
+
+### 30 Oct 2022
+
+* *3 hours* Finish inital version of LDA script
+* *3 hours* Integrate ML script into Django framework
+* *0.5 hours* Create Agneda for next meeting
+
+### 01 Nov 2022
+
+* *0.5 hours* Supervisor meeting
+* *0.5 hours* Create meeting minutes
+
+### 04 Nov 2022
+
+* *2 hours* Implement and refine file download feature
+
+
