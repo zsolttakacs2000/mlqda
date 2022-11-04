@@ -17,4 +17,7 @@ urlpatterns = [
     path('analyser-redirect/<collector_id>/', views.analyser_redirect, name='analyser-redirect'),
     path('contact/', views.contact, name='contact'),
     path('faq/', views.faq_page, name='faq'),
+    path('download-zip-results/<file_name>/',
+         views.download_zip_results,
+         name='download-zip-results'),
 ]

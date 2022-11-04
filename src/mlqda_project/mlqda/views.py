@@ -5,14 +5,13 @@ Python files to contain views for the MLQDA webapp
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.conf import settings
+from django.http import FileResponse
 
 from mlqda.forms import FileForm
 from mlqda.models import FileCollector, FileContainer
 from mlqda.topic_modelling import TopicModelling
 
 import os
-from pprint import pprint
-import re
 
 
 def index(request):
@@ -110,29 +109,14 @@ def analyser_redirect(request, collector_id):
             text = f.read().replace('\n', '')
             full_text.append(text)
 
-    tm = TopicModelling(full_text)
+    tm = TopicModelling(full_text, collector_id)
     tm.process_files()
     tm.create_helper_datastructures()
     tm.run_lda()
-    my_model = tm.get_lda_output()
-    pprint(my_model)
-    result_dict = {}
-    for topic in my_model:
-        topic_contrib = []
-        contrib_string = str(topic[1])
-        contrib_string = re.sub("'", "", contrib_string)
-        contrib_string = re.sub('"', '', contrib_string)
-        contrib_string = re.sub(" ", "", contrib_string)
-        values = contrib_string.split("+")
-        for contribution in values:
-            contrib_list = contribution.split('*')
-            contrib_tuple = (float(contrib_list[0]), str(contrib_list[1]).strip())
-            topic_contrib.append(contrib_tuple)
-
-        result_dict[str(int(topic[0])+1)] = topic_contrib
-    print(result_dict)
-    context_dict['topics'] = result_dict
+    tm.compile_reuslts()
+    context_dict['topics'] = tm.result_dict
     context_dict['total_topics'] = len(context_dict['topics'])
+    context_dict['zip_name'] = tm.zip_name
     return render(request, 'mlqda/analyser_results.html', context=context_dict)
 
 
@@ -144,3 +128,13 @@ def faq_page(request):
     """
     context_dict = {}
     return render(request, 'mlqda/faq.html', context=context_dict)
+
+
+def download_zip_results(request, file_name):
+    """
+    Function to enable zip file downoad of results. Takes file name as a parameter.
+    Finds FileContainer object based on file name and downloads the appropriate file.
+    """
+    result_file = FileContainer.objects.filter(file_name=file_name)[0]
+    response = FileResponse(open(str(result_file.file), 'rb'))
+    return response

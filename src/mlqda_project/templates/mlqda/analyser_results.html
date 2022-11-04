@@ -10,6 +10,10 @@
 	<div class="maintext">
 		The script identified {{ total_topics }} topics in your files.
 		</br></br>
+		<button type="submit" name="submit" class="general_button" onclick="window.open('{% url 'mlqda:download-zip-results' zip_name %}')"> 
+			<p class="button_text"> Download results </p>
+		</button>
+		</br></br>
 		{% for topic, tuple in topics.items %}
 			<div class="topic_list">
 				{{topic}}

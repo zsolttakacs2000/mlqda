@@ -10,6 +10,12 @@ import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
 import spacy
 from nltk.corpus import stopwords
+import json
+from django.conf import settings
+import os
+from mlqda.models import FileCollector, FileContainer
+import re
+from zipfile import ZipFile
 
 
 class TopicModelling:
@@ -17,10 +23,12 @@ class TopicModelling:
     Class to handle topic modelling functions and data
     self.datafiles is a list of full texts. []
     """
-    def __init__(self, datafiles: list):
+    def __init__(self, datafiles: list, collector_id):
         self.datafiles = datafiles
+        self.collector_id = collector_id
         self.processed_files = []
         self.structures = {}
+        self.result_dict = {}
 
     def __str___(self):
         return str(self.datafiles)
@@ -93,7 +101,7 @@ class TopicModelling:
         function to an LDA with preet parameters
         accessing and saving data and results from the object attribute
         """
-        lda_model = gensim.models.ldamodel.LdaModel(corpus=self.structures['corpus'][:-1],
+        lda_model = gensim.models.ldamodel.LdaModel(corpus=self.structures['corpus'],
                                                     id2word=self.structures['id2word'],
                                                     num_topics=4,
                                                     random_state=100,
@@ -106,3 +114,33 @@ class TopicModelling:
     def get_lda_output(self):
         topics = self.lda_model.print_topics()
         return topics
+
+    def compile_reuslts(self):
+        for topic in self.get_lda_output():
+            topic_contrib = []
+            contrib_string = str(topic[1])
+            contrib_string = re.sub("'", "", contrib_string)
+            contrib_string = re.sub('"', '', contrib_string)
+            contrib_string = re.sub(" ", "", contrib_string)
+            values = contrib_string.split("+")
+            for contribution in values:
+                contrib_list = contribution.split('*')
+                contrib_tuple = (float(contrib_list[0]), str(contrib_list[1]).strip())
+                topic_contrib.append(contrib_tuple)
+
+            self.result_dict[str(int(topic[0])+1)] = topic_contrib
+
+        collector = FileCollector.objects.get(collector_id=self.collector_id)
+        path = os.path.join(settings.MEDIA_ROOT, str(str(self.collector_id)+str('_results.json')))
+        with open(path, 'w') as output:
+            json.dump(self.result_dict, output)
+
+        self.zip_name = str(str(self.collector_id)+str('_results.zip'))
+        zip_path = os.path.join(settings.MEDIA_ROOT, self.zip_name)
+        with ZipFile(zip_path, 'w') as zip_results:
+            zip_results.write(path, str(os.path.basename(str(path))))
+
+        result_file = FileContainer.objects.create(first_name=collector, file=path)
+        result_file.save()
+        zip_model = FileContainer.objects.create(first_name=collector, file=zip_path)
+        zip_model.save()
