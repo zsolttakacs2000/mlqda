@@ -8,6 +8,7 @@ Inspiration of the processes and steps were taken from:
 import gensim
 import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
+from gensim.models import TfidfModel
 import spacy
 from nltk.corpus import stopwords
 import json
@@ -93,8 +94,47 @@ class TopicModelling:
     def tf_idf_removal(self):
         """
         Exclude words that would be prevelant in all topics using their tf-idf score
+        Save existing ids
+        Find low ids of low value words and create new list without them
+        Save new list to object attribute
         """
-        return True
+        tf_idf_scores = TfidfModel(self.structures['corpus'], id2word=self.structures['id2word'])
+
+        low_value = 0.03
+        words = []
+        my_missing_words = []
+        for bow in self.structures['corpus']:
+            low_score_words = []
+
+            all_tfidfs = []
+            for id, value in tf_idf_scores[bow]:
+                all_tfidfs.append(id)
+
+            all_bows = []
+            for id, value in bow:
+                all_bows.append(id)
+
+            low_score_words = []
+            for id, value in tf_idf_scores[bow]:
+                if value < low_value:
+                    low_score_words.append(id)
+
+            drops = low_score_words+my_missing_words
+            for item in drops:
+                words.append(self.structures['id2word'][item])
+
+            my_missing_words = []
+            for id in all_bows:
+                if id not in all_tfidfs:
+                    my_missing_words.append(id)
+
+            filtered_bow = []
+            for b in bow:
+                if b[0] not in low_score_words and b[0] not in my_missing_words:
+                    filtered_bow.append(b)
+
+            current_index = self.structures['corpus'].index(bow)
+            self.structures['corpus'][current_index] = filtered_bow
 
     def run_lda(self):
         """
@@ -103,7 +143,7 @@ class TopicModelling:
         """
         lda_model = gensim.models.ldamodel.LdaModel(corpus=self.structures['corpus'],
                                                     id2word=self.structures['id2word'],
-                                                    num_topics=4,
+                                                    num_topics=2,
                                                     random_state=100,
                                                     update_every=1,
                                                     chunksize=100,

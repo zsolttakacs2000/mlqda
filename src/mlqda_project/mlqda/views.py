@@ -112,6 +112,7 @@ def analyser_redirect(request, collector_id):
     tm = TopicModelling(full_text, collector_id)
     tm.process_files()
     tm.create_helper_datastructures()
+    tm.tf_idf_removal()
     tm.run_lda()
     tm.compile_reuslts()
     context_dict['topics'] = tm.result_dict
