@@ -8,7 +8,7 @@ Inspiration of the processes and steps were taken from:
 import gensim
 import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
-from gensim.models import TfidfModel
+from gensim.models import TfidfModel, CoherenceModel
 import spacy
 from nltk.corpus import stopwords
 import json
@@ -30,9 +30,6 @@ class TopicModelling:
         self.processed_files = []
         self.structures = {}
         self.result_dict = {}
-
-    def __str___(self):
-        return str(self.datafiles)
 
     def process_files(self):
         """
@@ -136,27 +133,41 @@ class TopicModelling:
             current_index = self.structures['corpus'].index(bow)
             self.structures['corpus'][current_index] = filtered_bow
 
-    def run_lda(self):
+    def run_lda(self, num):
         """
         function to an LDA with preet parameters
         accessing and saving data and results from the object attribute
         """
         lda_model = gensim.models.ldamodel.LdaModel(corpus=self.structures['corpus'],
                                                     id2word=self.structures['id2word'],
-                                                    num_topics=2,
+                                                    num_topics=num,
                                                     random_state=100,
                                                     update_every=1,
                                                     chunksize=100,
                                                     passes=10,
                                                     alpha="auto")
-        self.lda_model = lda_model
+        return lda_model
+
+    def dynamic_lda(self):
+        models = []
+        coherence_scores = []
+        for i in range(2, len(self.datafiles)+1):
+            current_model = self.run_lda(i)
+            current_coherence = CoherenceModel(model=current_model,
+                                               texts=self.structures['trigram_texts'],
+                                               coherence='c_v')
+            models.append(current_model)
+            coherence_scores.append(current_coherence.get_coherence())
+
+        max_coherence = max(coherence_scores)
+        max_index = coherence_scores.index(max_coherence)
+        max_model = models[max_index]
+
+        self.lda_model = max_model
 
     def get_lda_output(self):
         topics = self.lda_model.print_topics()
-        return topics
-
-    def compile_reuslts(self):
-        for topic in self.get_lda_output():
+        for topic in topics:
             topic_contrib = []
             contrib_string = str(topic[1])
             contrib_string = re.sub("'", "", contrib_string)
@@ -170,6 +181,10 @@ class TopicModelling:
 
             self.result_dict[str(int(topic[0])+1)] = topic_contrib
 
+        return self.result_dict
+
+    def compile_results(self):
+        self.get_lda_output()
         collector = FileCollector.objects.get(collector_id=self.collector_id)
         path = os.path.join(settings.MEDIA_ROOT, str(str(self.collector_id)+str('_results.json')))
         with open(path, 'w') as output:

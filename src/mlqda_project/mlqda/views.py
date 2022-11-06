@@ -105,7 +105,7 @@ def analyser_redirect(request, collector_id):
     for file in files:
         path = os.path.join(settings.MEDIA_ROOT, str(file.file))
 
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding="utf8") as f:
             text = f.read().replace('\n', '')
             full_text.append(text)
 
@@ -113,8 +113,8 @@ def analyser_redirect(request, collector_id):
     tm.process_files()
     tm.create_helper_datastructures()
     tm.tf_idf_removal()
-    tm.run_lda()
-    tm.compile_reuslts()
+    tm.dynamic_lda()
+    tm.compile_results()
     context_dict['topics'] = tm.result_dict
     context_dict['total_topics'] = len(context_dict['topics'])
     context_dict['zip_name'] = tm.zip_name
