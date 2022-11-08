@@ -18,6 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
+TEST_DIR = os.path.join(BASE_DIR, 'mlqda/test_files/')
 
 
 # Quick-start development settings - unsuitable for production
