@@ -10,6 +10,8 @@ import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
 from gensim.models import TfidfModel, CoherenceModel
 import spacy
+import nltk
+nltk.download('stopwords')
 from nltk.corpus import stopwords
 import json
 from django.conf import settings
