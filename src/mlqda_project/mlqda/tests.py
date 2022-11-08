@@ -110,7 +110,7 @@ class TopicModellingTests(TestCase):
     def get_test_files(self):
         test_path = os.path.relpath(settings.TEST_DIR, start=os.curdir)
         test_datafiles = []
-        for file in os.listdir(test_path):
+        for file in sorted(os.listdir(test_path)):
             file_path = os.path.join(test_path, file)
             if os.path.isfile(file_path):
                 with open(file_path, 'r') as f:
@@ -121,7 +121,6 @@ class TopicModellingTests(TestCase):
     def test_constructor(self):
         test_files = self.get_test_files()
         test_tm = TopicModelling(test_files, 1)
-        print(test_tm.datafiles[1])
 
         self.assertTrue('overtakes' in test_tm.datafiles[1])
         self.assertEqual(len(test_tm.datafiles), len(test_files))
