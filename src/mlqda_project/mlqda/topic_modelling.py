@@ -188,7 +188,7 @@ class TopicModelling:
         self.get_lda_output()
         collector = FileCollector.objects.get(collector_id=self.collector_id)
         path = os.path.join(settings.MEDIA_ROOT, str(str(self.collector_id)+str('_results.json')))
-        with open(path, 'w') as output:
+        with open(path, 'w+') as output:
             json.dump(self.result_dict, output)
 
         self.zip_name = str(str(self.collector_id)+str('_results.zip'))

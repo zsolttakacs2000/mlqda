@@ -61,7 +61,7 @@ class ViewTests(TestCase):
         """
         collector = FileCollector(first_name="test_files.txt")
         collector.save()
-        test_path = os.path.join(os.getcwd(), 'mlqda/test_files/')
+        test_path = os.path.relpath(settings.TEST_DIR, start=os.curdir)
 
         for file in os.listdir(test_path):
             file_path = os.path.join(test_path, file)
@@ -121,6 +121,7 @@ class TopicModellingTests(TestCase):
     def test_constructor(self):
         test_files = self.get_test_files()
         test_tm = TopicModelling(test_files, 1)
+        print(test_tm.datafiles[1])
 
         self.assertTrue('overtakes' in test_tm.datafiles[1])
         self.assertEqual(len(test_tm.datafiles), len(test_files))
