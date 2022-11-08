@@ -10,15 +10,14 @@ import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
 from gensim.models import TfidfModel, CoherenceModel
 import spacy
-import nltk
-nltk.download('stopwords')
-from nltk.corpus import stopwords
 import json
 from django.conf import settings
 import os
 from mlqda.models import FileCollector, FileContainer
 import re
 from zipfile import ZipFile
+import nltk
+nltk.download('stopwords')
 
 
 class TopicModelling:
@@ -39,7 +38,7 @@ class TopicModelling:
         Then lemmatizes and removes stopwords from those lists.
         """
         postags = ["NOUN", "ADJ", "VERB", "ADV"]
-        my_stopwords = stopwords.words("english")
+        my_stopwords = nltk.corpus.stopwords.words("english")
         nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
 
         for current_text in self.datafiles:
