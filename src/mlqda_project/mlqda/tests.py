@@ -200,9 +200,9 @@ class TopicModellingTests(TestCase):
         test_tm.dynamic_lda()
         test_tm.compile_results()
 
-        test_result_path = os.path.join(settings.MEDIA_ROOT,
+        test_result_path = os.path.join(os.path.relpath(settings.MEDIA_ROOT, start = os.curdir),
                                         str(test_tm.collector_id)+str('_results.json'))
-        test_zip_path = os.path.join(settings.MEDIA_ROOT, test_tm.zip_name)
+        test_zip_path = os.path.join(os.path.relpath(settings.MEDIA_ROOT, start = os.curdir), test_tm.zip_name)
 
         with open(test_result_path, 'r') as test_result_file:
             test_result = json.load(test_result_file)

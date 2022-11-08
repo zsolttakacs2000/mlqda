@@ -16,7 +16,8 @@ class FileCollector(models.Model):
 class FileContainer(models.Model):
     file_id = models.AutoField(primary_key=True)
     first_name = models.ForeignKey(FileCollector, on_delete=models.CASCADE)
-    file = models.FileField(upload_to=settings.MEDIA_ROOT, max_length=256)
+    file = models.FileField(upload_to=os.path.relpath(settings.MEDIA_ROOT, start = os.curdir),
+                            max_length=256)
     file_name = models.CharField(max_length=512, null=True)
 
     def save(self, *args, **kwargs):
