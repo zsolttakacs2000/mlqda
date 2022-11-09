@@ -16,6 +16,7 @@ import os
 from mlqda.models import FileCollector, FileContainer
 import re
 from zipfile import ZipFile
+import statistics
 import nltk
 nltk.download('stopwords')
 
@@ -98,7 +99,14 @@ class TopicModelling:
         """
         tf_idf_scores = TfidfModel(self.structures['corpus'], id2word=self.structures['id2word'])
 
-        low_value = 0.03
+        all_tfidf_vals = []
+        for bow in self.structures['corpus']:
+            for id, value in tf_idf_scores[bow]:
+                all_tfidf_vals.append(float(value))
+            
+        median_tfidf = statistics.median(sorted(all_tfidf_vals))
+                
+        low_value = median_tfidf
         words = []
         my_missing_words = []
         for bow in self.structures['corpus']:
