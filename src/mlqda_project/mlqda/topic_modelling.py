@@ -17,8 +17,20 @@ from mlqda.models import FileCollector, FileContainer
 import re
 from zipfile import ZipFile
 import statistics
+from pylatex import Document, Section, Package, Command, Itemize, LargeText
+from pylatex.utils import bold
+import unidecode
 import nltk
 nltk.download('stopwords')
+
+
+def get_datafiles(path_list):
+    full_text = []
+    for file_path in path_list:
+        with open(file_path, 'r', encoding="utf8") as f:
+            text = f.read().replace('\n', '')
+            full_text.append(text)
+    return full_text
 
 
 class TopicModelling:
@@ -26,8 +38,9 @@ class TopicModelling:
     Class to handle topic modelling functions and data
     self.datafiles is a list of full texts. []
     """
-    def __init__(self, datafiles: list, collector_id):
-        self.datafiles = datafiles
+    def __init__(self, datafile_paths: list, collector_id):
+        self.datafile_paths = datafile_paths
+        self.datafiles = get_datafiles(datafile_paths)
         self.collector_id = collector_id
         self.processed_files = []
         self.structures = {}
@@ -103,9 +116,9 @@ class TopicModelling:
         for bow in self.structures['corpus']:
             for id, value in tf_idf_scores[bow]:
                 all_tfidf_vals.append(float(value))
-            
+
         median_tfidf = statistics.median(sorted(all_tfidf_vals))
-                
+
         low_value = median_tfidf
         words = []
         my_missing_words = []
@@ -192,19 +205,76 @@ class TopicModelling:
 
         return self.result_dict
 
+    def create_highlights(self):
+        highlight_paths = []
+        words = []
+        for topic, contrib_list in self.result_dict.items():
+            words.append([contribution_tuple[1] for contribution_tuple in contrib_list])
+
+        for topic in words:
+            col_id = str(self.collector_id)
+            topic_index = str(words.index(topic)+1)
+            doc_name = str(col_id+"_topic"+topic_index+str('_highlights'))
+            path = os.path.join(settings.MEDIA_DIR, doc_name)
+            highlight_paths.append(path)
+            geometry_options = {"tmargin": "1in",
+                                "lmargin": "1in",
+                                "bmargin": "1in",
+                                "rmargin": "1in"}
+            doc = Document(geometry_options=geometry_options, lmodern=True, textcomp=True)
+            doc.packages.append(Package('soul'))
+            doc.packages.append(Package('xcolor'))
+            doc.preamble.append(Command('sethlcolor', 'yellow'))
+            doc.append(LargeText(bold("Topic modelling reuslts")))
+
+            with doc.create(
+                    Section('Most important words for topic ' + str(words.index(topic)+1))
+                    ):
+                with doc.create(Itemize()) as itemize:
+                    for word in topic:
+                        itemize.add_item(word)
+                    doc.append("\n\n\n")
+                    text = "Sentences that contain any of these words are highlighted below."
+                    doc.append(text)
+                    doc.append("\n")
+
+            for file in self.datafiles:
+                with doc.create(
+                        Section('Highlights from text '+str(self.datafiles.index(file)+1))
+                        ):
+                    sentences = file.split(".")
+
+                    for sentence in sentences:
+                        if any(word in str(sentence) for word in topic):
+                            unaccented_string = unidecode.unidecode(str(sentence))
+                            doc.append(Command("hl", arguments=unaccented_string))
+                            doc.append("\n")
+                        else:
+                            doc.append(str(sentence) + "\n")
+            doc.generate_pdf(path, compiler='pdfLaTeX')
+            self.highlight_paths = highlight_paths
+
     def compile_results(self):
         self.get_lda_output()
+        self.create_highlights()
         collector = FileCollector.objects.get(collector_id=self.collector_id)
-        path = os.path.join(settings.MEDIA_ROOT, str(str(self.collector_id)+str('_results.json')))
+        path = os.path.join(settings.MEDIA_DIR, str(str(self.collector_id)+str('_results.json')))
         with open(path, 'w+') as output:
             json.dump(self.result_dict, output)
 
         self.zip_name = str(str(self.collector_id)+str('_results.zip'))
-        zip_path = os.path.join(settings.MEDIA_ROOT, self.zip_name)
+        zip_path = os.path.join(settings.MEDIA_DIR, self.zip_name)
         with ZipFile(zip_path, 'w') as zip_results:
             zip_results.write(path, str(os.path.basename(str(path))))
+            os.remove(path)
+            for highlight_file in self.highlight_paths:
+                zip_results.write(str(highlight_file)+".pdf",
+                                  str(os.path.basename(str(highlight_file)+".pdf")))
+                os.remove(str(highlight_file)+".pdf")
 
-        result_file = FileContainer.objects.create(first_name=collector, file=path)
-        result_file.save()
         zip_model = FileContainer.objects.create(first_name=collector, file=zip_path)
         zip_model.save()
+
+        for file_path in self.datafile_paths:
+            if "test" not in str(file_path):
+                os.remove(file_path)
