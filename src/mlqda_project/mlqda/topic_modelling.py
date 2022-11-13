@@ -20,6 +20,8 @@ import statistics
 from pylatex import Document, Section, Package, Command, Itemize, LargeText
 from pylatex.utils import bold
 import unidecode
+import matplotlib.pyplot as plt
+import pyLDAvis.gensim_models
 import nltk
 nltk.download('stopwords')
 
@@ -254,9 +256,40 @@ class TopicModelling:
             doc.generate_pdf(path, compiler='pdfLaTeX')
             self.highlight_paths = highlight_paths
 
+    def create_visualisations(self):
+        collector = str(self.collector_id)
+        path = os.path.join(settings.MEDIA_DIR,
+                            collector+str('_result_visualisation.png'))
+        words = []
+        contrib = []
+        for topic, contrib_list in self.result_dict.items():
+            words.append([contribution_tuple[1] for contribution_tuple in sorted(contrib_list, key=lambda x: x[0])])
+            contrib.append([contribution_tuple[0] for contribution_tuple in sorted(contrib_list, key=lambda x: x[0])])
+
+        fig, axes = plt.subplots(len(words), 1, figsize=(16,10), sharey=False, sharex=True, dpi=160)
+        for i, ax in enumerate(axes.flatten()):
+            ax.barh(words[i], contrib[i])
+            ax.set_ylabel("Topic "+str(i+1))
+        fig.supylabel("Topics")
+        fig.supxlabel("Contribution")
+        fig.suptitle("Word contribution to each topic")
+        plt.savefig(path)
+        return path
+
+    def create_interactive_visualisation(self):
+        p = pyLDAvis.gensim_models.prepare(self.lda_model,self.structures['corpus'], self.structures['id2word'])
+        path = os.path.join(settings.MEDIA_DIR,
+                            str(self.collector_id)+str('_result_interactive_visualisation.html'))
+
+        pyLDAvis.save_html(p, path)
+        return path
+
     def compile_results(self):
         self.get_lda_output()
         self.create_highlights()
+        viz_path = self.create_visualisations()
+        interactive_viz = self.create_interactive_visualisation()
+        self.create_interactive_visualisation()
         collector = FileCollector.objects.get(collector_id=self.collector_id)
         path = os.path.join(settings.MEDIA_DIR, str(str(self.collector_id)+str('_results.json')))
         with open(path, 'w+') as output:
@@ -266,7 +299,11 @@ class TopicModelling:
         zip_path = os.path.join(settings.MEDIA_DIR, self.zip_name)
         with ZipFile(zip_path, 'w') as zip_results:
             zip_results.write(path, str(os.path.basename(str(path))))
+            zip_results.write(viz_path, str(os.path.basename(str(viz_path)))) 
+            zip_results.write(interactive_viz, str(os.path.basename(str(interactive_viz)))) 
             os.remove(path)
+            os.remove(viz_path)
+            os.remove(interactive_viz)
             for highlight_file in self.highlight_paths:
                 zip_results.write(str(highlight_file)+".pdf",
                                   str(os.path.basename(str(highlight_file)+".pdf")))
