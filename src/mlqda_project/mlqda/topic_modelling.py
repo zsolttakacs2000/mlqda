@@ -21,6 +21,7 @@ from pylatex import Document, Section, Package, Command, Itemize, LargeText
 from pylatex.utils import bold
 import unidecode
 import matplotlib.pyplot as plt
+import matplotlib.ticker
 import pyLDAvis.gensim_models
 import nltk
 nltk.download('stopwords')
@@ -30,7 +31,7 @@ def get_datafiles(path_list):
     full_text = []
     for file_path in path_list:
         with open(file_path, 'r', encoding="utf8") as f:
-            text = f.read().replace('\n', '')
+            text = f.read().replace('\n', ' ')
             full_text.append(text)
     return full_text
 
@@ -244,7 +245,7 @@ class TopicModelling:
                 with doc.create(
                         Section('Highlights from text '+str(self.datafiles.index(file)+1))
                         ):
-                    sentences = file.split(".")
+                    sentences = file.split(". ")
 
                     for sentence in sentences:
                         if any(word in str(sentence) for word in topic):
@@ -263,21 +264,28 @@ class TopicModelling:
         words = []
         contrib = []
         for topic, contrib_list in self.result_dict.items():
-            words.append([contribution_tuple[1] for contribution_tuple in sorted(contrib_list, key=lambda x: x[0])])
-            contrib.append([contribution_tuple[0] for contribution_tuple in sorted(contrib_list, key=lambda x: x[0])])
+            sorted_contrib = sorted(contrib_list, key=lambda x: x[0])
+            words.append([contribution_tuple[1] for contribution_tuple in sorted_contrib])
+            contrib.append([contribution_tuple[0]*100 for contribution_tuple in sorted_contrib])
 
-        fig, axes = plt.subplots(len(words), 1, figsize=(16,10), sharey=False, sharex=True, dpi=160)
+        fig, axes = plt.subplots(len(words), 1, figsize=(16, 10),
+                                 sharey=False, sharex=True, dpi=160)
         for i, ax in enumerate(axes.flatten()):
             ax.barh(words[i], contrib[i])
             ax.set_ylabel("Topic "+str(i+1))
+            ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter())
         fig.supylabel("Topics")
-        fig.supxlabel("Contribution")
+        desc = "Percentage contribution of each word towards their distinct topic. "
+        note = "These are the top 10 words only, so they do not necessarily add up to 100%"
+        fig.supxlabel('Contribution in percentages \n\n\n' + desc + note)
         fig.suptitle("Word contribution to each topic")
         plt.savefig(path)
         return path
 
     def create_interactive_visualisation(self):
-        p = pyLDAvis.gensim_models.prepare(self.lda_model,self.structures['corpus'], self.structures['id2word'])
+        p = pyLDAvis.gensim_models.prepare(self.lda_model,
+                                           self.structures['corpus'],
+                                           self.structures['id2word'])
         path = os.path.join(settings.MEDIA_DIR,
                             str(self.collector_id)+str('_result_interactive_visualisation.html'))
 
@@ -299,8 +307,8 @@ class TopicModelling:
         zip_path = os.path.join(settings.MEDIA_DIR, self.zip_name)
         with ZipFile(zip_path, 'w') as zip_results:
             zip_results.write(path, str(os.path.basename(str(path))))
-            zip_results.write(viz_path, str(os.path.basename(str(viz_path)))) 
-            zip_results.write(interactive_viz, str(os.path.basename(str(interactive_viz)))) 
+            zip_results.write(viz_path, str(os.path.basename(str(viz_path))))
+            zip_results.write(interactive_viz, str(os.path.basename(str(interactive_viz))))
             os.remove(path)
             os.remove(viz_path)
             os.remove(interactive_viz)

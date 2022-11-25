@@ -121,7 +121,6 @@ class TopicModellingTests(TestCase):
                                      test_tm_object.zip_name)
         return test_zip_path
 
-
     def test_constructor(self):
         test_files = self.get_test_files()
         test_tm = TopicModelling(test_files, 1)
@@ -251,7 +250,7 @@ class TopicModellingTests(TestCase):
         test_tm.compile_results()
         test_viz_path = test_tm.create_visualisations()
         test_interactive_path = test_tm.create_interactive_visualisation()
-        
+
         self.assertTrue(os.path.exists(test_viz_path))
         self.assertTrue(os.path.exists(test_interactive_path))
         test_zip_path = self.get_test_zip_path(test_tm)
