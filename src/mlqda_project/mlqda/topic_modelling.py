@@ -23,6 +23,8 @@ import unidecode
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import pyLDAvis.gensim_models
+import subprocess
+from distutils.spawn import find_executable
 import nltk
 nltk.download('stopwords')
 
@@ -254,7 +256,13 @@ class TopicModelling:
                             doc.append("\n")
                         else:
                             doc.append(str(sentence) + "\n")
-            doc.generate_pdf(path, compiler='pdfLaTeX')
+      
+            doc.generate_tex(path)
+            my_pdf_latex = find_executable('pdflatex')
+
+            subprocess.run([my_pdf_latex, '-output-directory=media', '-interaction=nonstopmode', path+".tex"])
+
+            print(my_pdf_latex)
             self.highlight_paths = highlight_paths
 
     def create_visualisations(self):
