@@ -30,7 +30,7 @@ jobs:
         pip show pdflatex
     - name: Install texlive
       run: |
-        sudo apt-get install texlive
+        wget https://github.com/scottkosty/install-tl-ubuntu/raw/master/install-tl-ubuntu && chmod +x ./install-tl-ubuntu
         mkdir texmf
         tlmgr init-usertree
         sudo tlmgr install lastpage
