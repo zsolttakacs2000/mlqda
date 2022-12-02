@@ -260,7 +260,10 @@ class TopicModelling:
             doc.generate_tex(path)
             my_pdf_latex = find_executable('pdflatex')
 
-            subprocess.run([my_pdf_latex, '-output-directory=media', '-interaction=nonstopmode', path+".tex"])
+            subprocess.run([my_pdf_latex,
+                            '-output-directory=media',
+                            '-interaction=nonstopmode',
+                            path+".tex"])
 
             print(my_pdf_latex)
             self.highlight_paths = highlight_paths
