@@ -29,6 +29,7 @@ jobs:
         python -m spacy download en
         pip show pdflatex
         sudo apt-get install texlive
+        which pdflatex
     - name: Migrate database
       run: |
         python src/mlqda_project/manage.py makemigrations
