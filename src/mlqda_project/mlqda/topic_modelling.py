@@ -263,7 +263,7 @@ class TopicModelling:
                                         '-output-directory=media',
                                         '-interaction=nonstopmode',
                                         doc_name+".tex"])
-            destination_dir = os.path.relpath(settings.BASE_DIR, start=os.curdir)
+            destination_dir = os.path.relpath(settings.MEDIA_DIR, start=os.curdir)
             switch_cwd = " ".join(['cd', destination_dir])
             command = " & ".join([switch_cwd, compile_command])
             print(command)
