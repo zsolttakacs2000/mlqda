@@ -267,7 +267,7 @@ class TopicModelling:
             switch_cwd = " ".join(['cd', destination_dir])
             command = " ; ".join([switch_cwd, compile_command])
             print(command)
-            subprocess.run(command)
+            subprocess.run(command, shell=True)
 
             self.highlight_paths = highlight_paths
 
