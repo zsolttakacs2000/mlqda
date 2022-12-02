@@ -31,7 +31,11 @@ jobs:
     - name: Install texlive
       run: |
         sudo apt-get install texlive
-        which pdflatex
+        sudo tlmgr install lastpage
+        sudo tlmgr install soul
+        sudo tlmgr install xcolor
+        sudo tlmgr install ltablex
+        which tlmgr
     - name: Migrate database
       run: |
         python src/mlqda_project/manage.py makemigrations
