@@ -265,7 +265,7 @@ class TopicModelling:
                                         doc_name+".tex"])
             destination_dir = os.path.relpath(settings.BASE_DIR, start=os.curdir)
             switch_cwd = " ".join(['cd', destination_dir])
-            command = " ; ".join([switch_cwd, compile_command])
+            command = " & ".join([switch_cwd, compile_command])
             print(command)
             proc = subprocess.Popen(command, shell=True)
             proc.wait()
