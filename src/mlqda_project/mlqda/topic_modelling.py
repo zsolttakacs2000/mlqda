@@ -261,6 +261,7 @@ class TopicModelling:
             my_pdf_latex = find_executable('pdflatex')
 
             subprocess.run([my_pdf_latex,
+                            '-aux-directory=media',
                             '-output-directory=media',
                             '-interaction=nonstopmode',
                             path+".tex"])
