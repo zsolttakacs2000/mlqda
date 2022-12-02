@@ -260,7 +260,6 @@ class TopicModelling:
 
             my_pdf_latex = find_executable('pdflatex')
             compile_command = " ".join([my_pdf_latex,
-                                        '-output-directory=media',
                                         '-interaction=nonstopmode',
                                         doc_name+".tex"])
             destination_dir = os.path.relpath(settings.MEDIA_DIR, start=os.curdir)
