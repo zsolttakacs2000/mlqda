@@ -262,12 +262,13 @@ class TopicModelling:
             compile_command = " ".join([my_pdf_latex,
                                         '-output-directory=media',
                                         '-interaction=nonstopmode',
-                                        path+".tex"])
-            destination_dir = os.path.relpath(settings.MEDIA_DIR, start=os.curdir)
+                                        doc_name+".tex"])
+            destination_dir = os.path.relpath(settings.BASE_DIR, start=os.curdir)
             switch_cwd = " ".join(['cd', destination_dir])
             command = " ; ".join([switch_cwd, compile_command])
             print(command)
-            subprocess.run(command, shell=True)
+            proc = subprocess.Popen(command, shell=True)
+            proc.wait()
 
             self.highlight_paths = highlight_paths
 
