@@ -256,17 +256,19 @@ class TopicModelling:
                             doc.append("\n")
                         else:
                             doc.append(str(sentence) + "\n")
-      
             doc.generate_tex(path)
+
             my_pdf_latex = find_executable('pdflatex')
+            compile_command = " ".join([my_pdf_latex,
+                                        '-output-directory=media',
+                                        '-interaction=nonstopmode',
+                                        path+".tex"])
+            destination_dir = os.path.relpath(settings.MEDIA_DIR, start=os.curdir)
+            switch_cwd = " ".join(['cd', destination_dir])
+            command = " ; ".join([switch_cwd, compile_command])
+            print(command)
+            subprocess.run(command)
 
-            subprocess.run([my_pdf_latex,
-                            '-aux-directory=media',
-                            '-output-directory=media',
-                            '-interaction=nonstopmode',
-                            path+".tex"])
-
-            print(my_pdf_latex)
             self.highlight_paths = highlight_paths
 
     def create_visualisations(self):
