@@ -264,7 +264,7 @@ class TopicModelling:
                                         doc_name+".tex"])
             destination_dir = os.path.relpath(settings.MEDIA_DIR, start=os.curdir)
             switch_cwd = " ".join(['cd', destination_dir])
-            command = " & ".join(['ls', switch_cwd, 'ls', compile_command])
+            command = " && ".join(['ls', switch_cwd, 'ls', compile_command])
             print(command)
             proc = subprocess.Popen(command, shell=True)
             proc.wait()
