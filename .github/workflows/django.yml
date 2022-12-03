@@ -30,14 +30,8 @@ jobs:
         pip show pdflatex
     - name: Install texlive
       run: |
-        wget https://github.com/scottkosty/install-tl-ubuntu/raw/master/install-tl-ubuntu && chmod +x ./install-tl-ubuntu
-        mkdir texmf
-        tlmgr init-usertree
-        sudo tlmgr install lastpage
-        sudo tlmgr install soul
-        sudo tlmgr install xcolor
-        sudo tlmgr install ltablex
-        which tlmgr
+        sudo apt-get install texlive
+        sudo apt-get install texlive-latex-extra
     - name: Migrate database
       run: |
         python src/mlqda_project/manage.py makemigrations
