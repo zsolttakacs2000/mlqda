@@ -17,7 +17,8 @@ from mlqda.models import FileCollector, FileContainer
 import re
 from zipfile import ZipFile
 import statistics
-from pylatex import Document, Section, Package, Command, Itemize, LargeText
+from pylatex import Document, Section, Package, Command, Itemize, LargeText, NoEscape
+from pylatex.base_classes import Arguments
 from pylatex.utils import bold
 import unidecode
 import matplotlib.pyplot as plt
@@ -25,6 +26,7 @@ import matplotlib.ticker
 import pyLDAvis.gensim_models
 import subprocess
 from distutils.spawn import find_executable
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 nltk.download('stopwords')
 
@@ -216,6 +218,7 @@ class TopicModelling:
         for topic, contrib_list in self.result_dict.items():
             words.append([contribution_tuple[1] for contribution_tuple in contrib_list])
 
+        double_esc = NoEscape("\\")+NoEscape("\\")
         for topic in words:
             col_id = str(self.collector_id)
             topic_index = str(words.index(topic)+1)
@@ -229,6 +232,7 @@ class TopicModelling:
             doc = Document(geometry_options=geometry_options, lmodern=True, textcomp=True)
             doc.packages.append(Package('soul'))
             doc.packages.append(Package('xcolor'))
+            doc.packages.append(Package('ltablex'))
             doc.preamble.append(Command('sethlcolor', 'yellow'))
             doc.append(LargeText(bold("Topic modelling reuslts")))
 
@@ -243,19 +247,61 @@ class TopicModelling:
                     doc.append(text)
                     doc.append("\n")
 
+            corpus_sentiment_sum = 0
+
             for file in self.datafiles:
                 with doc.create(
                         Section('Highlights from text '+str(self.datafiles.index(file)+1))
                         ):
+                    tabular_args = Arguments('tabularx', NoEscape(r'\textwidth'), '|l|X|')
+                    doc.append(Command("begin", arguments=tabular_args))
+
+                    senti = NoEscape(Command("textbf", arguments="Sentiment").dumps())
+                    sente = NoEscape(Command("textbf", arguments="Sentence").dumps())
+                    header = "&".join([senti, sente])+double_esc
+                    doc.append(Command("hline"))
+                    doc.append(NoEscape(header))
+                    doc.append(Command("hline"))
+                    doc.append(Command("hline"))
+                    doc.append(Command("endhead"))
+                    next_footer_args = Arguments('2', 'r', 'Continued on Next Page')
+                    doc.append(Command("multicolumn", arguments=next_footer_args))
+                    doc.append(Command("endfoot"))
+                    last_footer_args = Arguments('2', 'r', 'End of section')
+                    doc.append(Command("multicolumn", arguments=last_footer_args))
+                    doc.append(Command("endlastfoot"))
+
                     sentences = file.split(". ")
 
+                    sum_sentence_sentiment = 0
                     for sentence in sentences:
+                        row = []
+                        sentiment_analyser = SentimentIntensityAnalyzer()
+                        sentiment_scores = sentiment_analyser.polarity_scores(str(sentence))
+                        compound_score = sentiment_scores['compound']
+                        sum_sentence_sentiment += compound_score
+                        row.append(str(compound_score))
+
                         if any(word in str(sentence) for word in topic):
                             unaccented_string = unidecode.unidecode(str(sentence))
-                            doc.append(Command("hl", arguments=unaccented_string))
-                            doc.append("\n")
+                            highlight = Command("hl", arguments=unaccented_string).dumps()
+                            row.append(NoEscape(highlight+double_esc))
                         else:
-                            doc.append(str(sentence) + "\n")
+                            row.append(str(sentence)+double_esc)
+                        doc.append(NoEscape("&".join(row)))
+                        doc.append(Command("hline"))
+
+                    doc.append(Command("end", arguments=Arguments('tabularx')))
+                    avg_sentence_sentiment = sum_sentence_sentiment/len(sentences)
+                    corpus_sentiment_sum += avg_sentence_sentiment
+                    sentence_result = "This document has an avarge of {avg:.2f} sentiment score."
+                    doc.append(sentence_result.format(avg=avg_sentence_sentiment))
+
+            with doc.create(Section('Sentiment Analysis')):
+                corpus_sentiment_mean = corpus_sentiment_sum/len(self.datafiles)
+                corpus_result = "This set of documents has an avarge of {avg:.2f} sentiment score."
+                doc.append(corpus_result.format(avg=corpus_sentiment_mean))
+
             doc.generate_tex(path)
 
             my_pdf_latex = find_executable('pdflatex')
@@ -267,6 +313,7 @@ class TopicModelling:
             command = " && ".join([switch_cwd, compile_command])
             proc = subprocess.Popen(command, shell=True)
             proc.wait()
+            [os.remove(path+ext) for ext in ['.log', '.tex', '.aux']]
 
             self.highlight_paths = highlight_paths
 
