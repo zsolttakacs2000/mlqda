@@ -29,6 +29,7 @@ from distutils.spawn import find_executable
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 nltk.download('stopwords')
+nltk.download('vader_lexicon')
 
 
 def get_datafiles(path_list):
