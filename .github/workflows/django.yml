@@ -28,6 +28,10 @@ jobs:
         pip install -r src/mlqda_project/requirements.txt
         python -m spacy download en
         pip show pdflatex
+    - name: Install texlive
+      run: |
+        sudo apt-get install texlive
+        sudo apt-get install texlive-latex-extra
     - name: Migrate database
       run: |
         python src/mlqda_project/manage.py makemigrations
