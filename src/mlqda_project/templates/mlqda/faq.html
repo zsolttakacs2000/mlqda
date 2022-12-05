@@ -7,9 +7,8 @@
 {% endblock %}
 
 {% block body_block %}
-	<div class="maintext">
-		<h1>Frequently Asked Questions</h1>
-		</br>
+	<div class="flex-container", id="maintext">
+		<h1>Frequently Asked Questions</br></h1>
 		<h2>Why do I need to prepare my files?</h2>
 		<p>The current implementation of the underlying machine learning script cannot identify the unnecesarry parts of your text files.
 		Identifying recurring snippets of raw text is important but not something within the current scope of the software.
@@ -20,37 +19,68 @@
 		</br>
 		<strong>The current implementation does not support warnings if your text is not prepared correctly.</strong></p>
 
-		</br>		
+		
 		<h2>What pieces of texts should I remove from my files?</h2>
 		<p>Strictly speaking any text that you do not wish to analyse. Most commonly these include:
 		Speaker names, Interview/focus group questions, Page numbers, Headers, Particiapnt information </p>
 		
-		</br>
+
 		<h2>How do I remove these unnecesarry texts?</h2>
 		<p>There are mult ways to go on about this. Probably the easiest way is to make a copy of your files and just delete the lines that should not be included in the analysis.
 		After deleteing these lines, you can upload your new files in the Analyser tab.</p>
 		
-		</br>
+
 		<h2>How do I get my results?</h2>
 		<p>After uploading your files, to site should take you a redirect page.
 		Once your results have been analysed you should be automatically redirected to the results page where you can find your results.</p>
 		
-		</br>
+
 		<h2>How do I download my results?</h2>
 		<p>From the download page you can access the most important results files individually or you can download every file in zip folder.</p>
 		
-		</br>
-		<h2>How do I interpret my results?</h2>
-		<p>Your results consits of multple parts withy varying level of depth.
+
+		<h2>How do I interpret my result file?</h2>
+		<p>Your results consits of multple parts with varying level of depth.
 		Firstly, you should recive a list of the most important words grouped by topic.
 		These topics are not definied so you need to deduct the content of the topics based on these words.
 		Furthermore, you should receive a version of your original files where the sentences that contain one of the topic words are highlighted.
 		Finally, there are also a set of other files containing the transformed data like a document-term matrix. You can use these files to run your own script potentially.
 		</p>
+		<p>Secondly, your results should include sentiment scores. These can be found on the left-hand side
+		of the table. These scores are called 'compound sentiment scores' as they are calculated from negative,
+		neutral and positive sentiment scores. The displayed scores range from -1 to 1, so in essence you can
+		interpret them as percentages. For example a score of +0.25 could be interpreted as 25% positive.
+		When compiling the document, the system calculates the sentiment score for every sentence.
+		These sentence-sentiment scores are then aggregated into a document and a corpora wide sentiemnt score. 
+		This way, you end up with an avarge sentiment score for each of your uploaded document and with one avarge 
+		sentiment score for all of your documents.
+		</p>
 		
-		</br>
+
 		<h2>How do I open my results?</h2>
 		<p>The results come in easily accessable formats like .txt or .pdf files.</p>
+		
+
+		<h2>Are there any caveats?</h2>
+		<p>The scope of this project is limited so far. There a few cavetas to keep in mind when using
+		the site. 
+		</p>
+		<p>
+			<ul>
+				<li>The only dynamic aspect of the topic modelling feature is the number of topics.
+					The appropriate number of topics is calculated based on the best coherence score.
+				</li>
+				<li>
+					All other aspect of LDA topic modelling apart from the number of topics is hard-coded and
+					cannot be changed by the user.
+				</li>
+				<li>
+					The sentiment analyser utalised in the script is a built in functionality of the NLTK library.
+					This sentiment analyser was trained on annotated Twitter data, so it might have different precision
+					values on texts from other origins.
+				</li>
+			</ul>
+		</p>
 
 	</div>
 {% endblock %}

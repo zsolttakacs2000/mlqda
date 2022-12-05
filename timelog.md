@@ -111,5 +111,46 @@
 ### 04 Nov 2022
 
 * *2 hours* Implement and refine file download feature
+* *1.5 hours* Implement common word removal based on tf-idf scores
+
+### 05 Nov 2022
+
+* *1.5 hours* Implement dynamic topic calculation based on coherence scores
+* *1.5 hours* Write tests for ML script
+
+### 06 Nov 2022
+
+* *1.5 hours* Write write tests for ML script integration to Django
+* *hours* Fix pipeline issues
+* *0.5 hours* Prepare for next meeting
+
+### 08 Nov 2022
+
+* *0.5 hours* Supervisor meeting
+* *0.5 hours* Create meeting minutes and update requiremnts
+* *1.0 hours* Update testfiles, relative paths and pipeline file to match new features
+
+### 08 Nov 2022
+
+* *1.0 hours* Dynamic content word removal based on tf-idf median
+* *3.0 hours* Develop highlight identification
+
+### 09 Nov 2022
+
+* *3.0 hours* Initial latex writing of highlights
+
+### 11 Nov 2022
+
+* *1.0 hours* Refine latex of highlights
+* *1.0 hours* Develop auto deletion of uploaded files
+
+### 12 Nov 2022
+
+* *1.5 hours* Testing and tidying up highlighting feature
+
+### 13 Nov 2022
+
+* *2.5 hours* Develop result visualsiations and tests
+* *0.5 hours* Create agenda for next week
 
 

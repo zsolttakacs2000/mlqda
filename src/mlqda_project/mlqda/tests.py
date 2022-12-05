@@ -75,7 +75,7 @@ class ViewTests(TestCase):
         response = self.client.get(reverse('mlqda:analyser-redirect',
                                            kwargs={'collector_id': collector.collector_id}))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "The script identified 5 topics in your files.")
+        self.assertContains(response, "The script identified")
 
     def test_get_analyser_start(self):
         """
@@ -109,14 +109,17 @@ class TopicModellingTests(TestCase):
 
     def get_test_files(self):
         test_path = os.path.relpath(settings.TEST_DIR, start=os.curdir)
-        test_datafiles = []
+        test_paths = []
         for file in sorted(os.listdir(test_path)):
             file_path = os.path.join(test_path, file)
             if os.path.isfile(file_path):
-                with open(file_path, 'r') as f:
-                    text = f.read().replace('\n', '')
-                    test_datafiles.append(text)
-        return test_datafiles
+                test_paths.append(file_path)
+        return test_paths
+
+    def get_test_zip_path(self, test_tm_object):
+        test_zip_path = os.path.join(os.path.relpath(settings.MEDIA_DIR, start=os.curdir),
+                                     test_tm_object.zip_name)
+        return test_zip_path
 
     def test_constructor(self):
         test_files = self.get_test_files()
@@ -182,7 +185,7 @@ class TopicModellingTests(TestCase):
         test_tm.tf_idf_removal()
         test_tm.dynamic_lda()
 
-        self.assertEqual(len(test_tm.lda_model.get_topics()), 5)
+        self.assertEqual(len(test_tm.lda_model.get_topics()), 4)
 
     def test_compile_results(self):
         test_files = self.get_test_files()
@@ -200,22 +203,57 @@ class TopicModellingTests(TestCase):
         test_tm.dynamic_lda()
         test_tm.compile_results()
 
-        test_result_path = os.path.join(os.path.relpath(settings.MEDIA_ROOT, start=os.curdir),
-                                        str(test_tm.collector_id)+str('_results.json'))
-        test_zip_path = os.path.join(os.path.relpath(settings.MEDIA_ROOT,
-                                                     start=os.curdir),
-                                     test_tm.zip_name)
-
-        with open(test_result_path, 'r') as test_result_file:
-            test_result = json.load(test_result_file)
+        test_zip_path = self.get_test_zip_path(test_tm)
 
         with ZipFile(test_zip_path, 'r') as test_zip_results:
             zip_collector_id = str(test_tm.collector_id)
             zipped_test_result = test_zip_results.read(zip_collector_id+str('_results.json'))
             unzipped_test_result = json.loads(zipped_test_result.decode("utf-8"))
 
-        self.assertEqual(len(test_result), len(test_tm.lda_model.get_topics()))
         self.assertEqual(len(unzipped_test_result), len(test_tm.lda_model.get_topics()))
-        self.assertEqual(len(test_result), len(unzipped_test_result))
-        os.remove(test_result_path)
         os.remove(test_zip_path)
+
+    def test_create_highlights(self):
+        test_files = self.get_test_files()
+
+        collector = FileCollector(first_name="test_files.txt")
+        collector.save()
+        for file in test_files:
+            current_file = FileContainer.objects.create(file=file, first_name=collector)
+            current_file.save()
+
+        test_tm = TopicModelling(test_files, collector.collector_id)
+        test_tm.process_files()
+        test_tm.create_helper_datastructures()
+        test_tm.tf_idf_removal()
+        test_tm.dynamic_lda()
+        test_tm.compile_results()
+
+        self.assertEqual(len(test_tm.highlight_paths), len(test_tm.lda_model.get_topics()))
+        test_zip_path = self.get_test_zip_path(test_tm)
+        os.remove(test_zip_path)
+
+    def test_visualisations(self):
+        test_files = self.get_test_files()
+
+        collector = FileCollector(first_name="test_files.txt")
+        collector.save()
+        for file in test_files:
+            current_file = FileContainer.objects.create(file=file, first_name=collector)
+            current_file.save()
+
+        test_tm = TopicModelling(test_files, collector.collector_id)
+        test_tm.process_files()
+        test_tm.create_helper_datastructures()
+        test_tm.tf_idf_removal()
+        test_tm.dynamic_lda()
+        test_tm.compile_results()
+        test_viz_path = test_tm.create_visualisations()
+        test_interactive_path = test_tm.create_interactive_visualisation()
+
+        self.assertTrue(os.path.exists(test_viz_path))
+        self.assertTrue(os.path.exists(test_interactive_path))
+        test_zip_path = self.get_test_zip_path(test_tm)
+        os.remove(test_viz_path)
+        os.remove(test_zip_path)
+        os.remove(test_interactive_path)

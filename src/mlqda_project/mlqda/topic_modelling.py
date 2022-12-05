@@ -16,8 +16,29 @@ import os
 from mlqda.models import FileCollector, FileContainer
 import re
 from zipfile import ZipFile
+import statistics
+from pylatex import Document, Section, Package, Command, Itemize, LargeText, NoEscape
+from pylatex.base_classes import Arguments
+from pylatex.utils import bold
+import unidecode
+import matplotlib.pyplot as plt
+import matplotlib.ticker
+import pyLDAvis.gensim_models
+import subprocess
+from distutils.spawn import find_executable
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 nltk.download('stopwords')
+nltk.download('vader_lexicon')
+
+
+def get_datafiles(path_list):
+    full_text = []
+    for file_path in path_list:
+        with open(file_path, 'r', encoding="utf8") as f:
+            text = f.read().replace('\n', ' ')
+            full_text.append(text)
+    return full_text
 
 
 class TopicModelling:
@@ -25,8 +46,9 @@ class TopicModelling:
     Class to handle topic modelling functions and data
     self.datafiles is a list of full texts. []
     """
-    def __init__(self, datafiles: list, collector_id):
-        self.datafiles = datafiles
+    def __init__(self, datafile_paths: list, collector_id):
+        self.datafile_paths = datafile_paths
+        self.datafiles = get_datafiles(datafile_paths)
         self.collector_id = collector_id
         self.processed_files = []
         self.structures = {}
@@ -98,7 +120,14 @@ class TopicModelling:
         """
         tf_idf_scores = TfidfModel(self.structures['corpus'], id2word=self.structures['id2word'])
 
-        low_value = 0.03
+        all_tfidf_vals = []
+        for bow in self.structures['corpus']:
+            for id, value in tf_idf_scores[bow]:
+                all_tfidf_vals.append(float(value))
+
+        median_tfidf = statistics.median(sorted(all_tfidf_vals))
+
+        low_value = median_tfidf
         words = []
         my_missing_words = []
         for bow in self.structures['corpus']:
@@ -184,19 +213,187 @@ class TopicModelling:
 
         return self.result_dict
 
+    def create_highlights(self):
+        highlight_paths = []
+        words = []
+        for topic, contrib_list in self.result_dict.items():
+            words.append([contribution_tuple[1] for contribution_tuple in contrib_list])
+
+        double_esc = NoEscape("\\")+NoEscape("\\")
+        for topic in words:
+            col_id = str(self.collector_id)
+            topic_index = str(words.index(topic)+1)
+            doc_name = str(col_id+"_topic"+topic_index+str('_highlights'))
+            path = os.path.join(settings.MEDIA_DIR, doc_name)
+            highlight_paths.append(path)
+            geometry_options = {"tmargin": "1in",
+                                "lmargin": "1in",
+                                "bmargin": "1in",
+                                "rmargin": "1in"}
+            doc = Document(geometry_options=geometry_options, lmodern=True, textcomp=True)
+            doc.packages.append(Package('soul'))
+            doc.packages.append(Package('xcolor'))
+            doc.packages.append(Package('ltablex'))
+            doc.preamble.append(Command('sethlcolor', 'yellow'))
+            doc.append(LargeText(bold("Topic modelling reuslts")))
+
+            with doc.create(
+                    Section('Most important words for topic ' + str(words.index(topic)+1))
+                    ):
+                with doc.create(Itemize()) as itemize:
+                    for word in topic:
+                        itemize.add_item(word)
+                    doc.append("\n\n\n")
+                    text = "Sentences that contain any of these words are highlighted below."
+                    doc.append(text)
+                    doc.append("\n")
+
+            corpus_sentiment_sum = 0
+
+            for file in self.datafiles:
+                with doc.create(
+                        Section('Highlights from text '+str(self.datafiles.index(file)+1))
+                        ):
+                    tabular_args = Arguments('tabularx', NoEscape(r'\textwidth'), '|l|X|')
+                    doc.append(Command("begin", arguments=tabular_args))
+
+                    senti = NoEscape(Command("textbf", arguments="Sentiment").dumps())
+                    sente = NoEscape(Command("textbf", arguments="Sentence").dumps())
+                    header = "&".join([senti, sente])+double_esc
+                    doc.append(Command("hline"))
+                    doc.append(NoEscape(header))
+                    doc.append(Command("hline"))
+                    doc.append(Command("hline"))
+                    doc.append(Command("endhead"))
+                    next_footer_args = Arguments('2', 'r', 'Continued on Next Page')
+                    doc.append(Command("multicolumn", arguments=next_footer_args))
+                    doc.append(Command("endfoot"))
+                    last_footer_args = Arguments('2', 'r', 'End of section')
+                    doc.append(Command("multicolumn", arguments=last_footer_args))
+                    doc.append(Command("endlastfoot"))
+
+                    sentences = file.split(". ")
+
+                    sum_sentence_sentiment = 0
+                    for sentence in sentences:
+                        row = []
+                        sentiment_analyser = SentimentIntensityAnalyzer()
+                        sentiment_scores = sentiment_analyser.polarity_scores(str(sentence))
+                        compound_score = sentiment_scores['compound']
+                        sum_sentence_sentiment += compound_score
+                        row.append(str(compound_score))
+
+                        if any(word in str(sentence) for word in topic):
+                            unaccented_string = unidecode.unidecode(str(sentence))
+                            highlight = Command("hl", arguments=unaccented_string).dumps()
+                            row.append(NoEscape(highlight+double_esc))
+                        else:
+                            row.append(str(sentence)+double_esc)
+                        doc.append(NoEscape("&".join(row)))
+                        doc.append(Command("hline"))
+
+                    doc.append(Command("end", arguments=Arguments('tabularx')))
+                    avg_sentence_sentiment = sum_sentence_sentiment/len(sentences)
+                    corpus_sentiment_sum += avg_sentence_sentiment
+                    sentence_result = "This document has an avarge of {avg:.2f} sentiment score."
+                    doc.append(sentence_result.format(avg=avg_sentence_sentiment))
+
+            with doc.create(Section('Sentiment Analysis')):
+                corpus_sentiment_mean = corpus_sentiment_sum/len(self.datafiles)
+                corpus_result = "This set of documents has an avarge of {avg:.2f} sentiment score."
+                sentiment_description = """
+                 Sentiment scores can be found on the left-hand side of the table.
+                These scores are called 'compound sentiment scores' as
+                they are calculated from negative, neutral and positive
+                sentiment scores. The displayed scores range from -1 to 1,
+                so in essence you can interpret them as percentages.
+                For example a score of +0.25 could be interpreted as 25% positive.
+                When compiling the document, the system calculates the sentiment score
+                for every sentence. These sentence-sentiment scores are then aggregated
+                into a document and a corpora wide sentiemnt score. This way,
+                you end up with an avarge sentiment score for each of your uploaded
+                document and with one avarge sentiment score for all of your documents."""
+                doc.append(corpus_result.format(avg=corpus_sentiment_mean))
+                doc.append(sentiment_description.replace('\n', ' '))
+
+            doc.generate_tex(path)
+
+            my_pdf_latex = find_executable('pdflatex')
+            compile_command = " ".join([my_pdf_latex,
+                                        '-interaction=nonstopmode',
+                                        doc_name+".tex"])
+            destination_dir = os.path.relpath(settings.MEDIA_DIR, start=os.curdir)
+            switch_cwd = " ".join(['cd', destination_dir])
+            command = " && ".join([switch_cwd, compile_command])
+            proc = subprocess.Popen(command, shell=True)
+            proc.wait()
+            [os.remove(path+ext) for ext in ['.log', '.tex', '.aux']]
+
+            self.highlight_paths = highlight_paths
+
+    def create_visualisations(self):
+        collector = str(self.collector_id)
+        path = os.path.join(settings.MEDIA_DIR,
+                            collector+str('_result_visualisation.png'))
+        words = []
+        contrib = []
+        for topic, contrib_list in self.result_dict.items():
+            sorted_contrib = sorted(contrib_list, key=lambda x: x[0])
+            words.append([contribution_tuple[1] for contribution_tuple in sorted_contrib])
+            contrib.append([contribution_tuple[0]*100 for contribution_tuple in sorted_contrib])
+
+        fig, axes = plt.subplots(len(words), 1, figsize=(16, 10),
+                                 sharey=False, sharex=True, dpi=160)
+        for i, ax in enumerate(axes.flatten()):
+            ax.barh(words[i], contrib[i])
+            ax.set_ylabel("Topic "+str(i+1))
+            ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter())
+        fig.supylabel("Topics")
+        desc = "Percentage contribution of each word towards their distinct topic. "
+        note = "These are the top 10 words only, so they do not necessarily add up to 100%"
+        fig.supxlabel('Contribution in percentages \n\n\n' + desc + note)
+        fig.suptitle("Word contribution to each topic")
+        plt.savefig(path)
+        return path
+
+    def create_interactive_visualisation(self):
+        p = pyLDAvis.gensim_models.prepare(self.lda_model,
+                                           self.structures['corpus'],
+                                           self.structures['id2word'])
+        path = os.path.join(settings.MEDIA_DIR,
+                            str(self.collector_id)+str('_result_interactive_visualisation.html'))
+
+        pyLDAvis.save_html(p, path)
+        return path
+
     def compile_results(self):
         self.get_lda_output()
+        self.create_highlights()
+        viz_path = self.create_visualisations()
+        interactive_viz = self.create_interactive_visualisation()
+        self.create_interactive_visualisation()
         collector = FileCollector.objects.get(collector_id=self.collector_id)
-        path = os.path.join(settings.MEDIA_ROOT, str(str(self.collector_id)+str('_results.json')))
+        path = os.path.join(settings.MEDIA_DIR, str(str(self.collector_id)+str('_results.json')))
         with open(path, 'w+') as output:
             json.dump(self.result_dict, output)
 
         self.zip_name = str(str(self.collector_id)+str('_results.zip'))
-        zip_path = os.path.join(settings.MEDIA_ROOT, self.zip_name)
+        zip_path = os.path.join(settings.MEDIA_DIR, self.zip_name)
         with ZipFile(zip_path, 'w') as zip_results:
             zip_results.write(path, str(os.path.basename(str(path))))
+            zip_results.write(viz_path, str(os.path.basename(str(viz_path))))
+            zip_results.write(interactive_viz, str(os.path.basename(str(interactive_viz))))
+            os.remove(path)
+            os.remove(viz_path)
+            os.remove(interactive_viz)
+            for highlight_file in self.highlight_paths:
+                zip_results.write(str(highlight_file)+".pdf",
+                                  str(os.path.basename(str(highlight_file)+".pdf")))
+                os.remove(str(highlight_file)+".pdf")
 
-        result_file = FileContainer.objects.create(first_name=collector, file=path)
-        result_file.save()
         zip_model = FileContainer.objects.create(first_name=collector, file=zip_path)
         zip_model.save()
+
+        for file_path in self.datafile_paths:
+            if "test" not in str(file_path):
+                os.remove(file_path)

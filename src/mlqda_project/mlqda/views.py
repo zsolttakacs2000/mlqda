@@ -101,15 +101,12 @@ def analyser_redirect(request, collector_id):
     collector = FileCollector.objects.get(collector_id=collector_id)
     files = FileContainer.objects.filter(first_name=collector)
 
-    full_text = []
+    datafiles_paths = []
     for file in files:
-        path = os.path.join(settings.MEDIA_ROOT, str(file.file))
+        path = os.path.join(settings.MEDIA_DIR, str(file.file))
+        datafiles_paths.append(path)
 
-        with open(path, 'r', encoding="utf8") as f:
-            text = f.read().replace('\n', '')
-            full_text.append(text)
-
-    tm = TopicModelling(full_text, collector_id)
+    tm = TopicModelling(datafiles_paths, collector_id)
     tm.process_files()
     tm.create_helper_datastructures()
     tm.tf_idf_removal()
