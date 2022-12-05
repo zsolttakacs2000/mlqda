@@ -7,24 +7,34 @@
 {% endblock %}
 
 {% block body_block %}
-	<div class="maintext">
-		The script identified {{ total_topics }} topics in your files.
+	<div class="flex-container", id="maintext">
+		<p>The script identified {{ total_topics }} topics in your files.</p>
+		
+		<p>Ideally these words describe distinct topics in your documents. You will need to deduct
+		what these topics are based on the top words. Next to the words, you can also see their contribution
+		as a percentage. Within the results, you can see highlighted sentences for each topic. Every
+		highlighted pdf shows you the sentences connected to that topic. Thsi way, you can see which sentences
+		are connected to the topics.</p>
+
+		<p>Next to the sentences, you can also see the sentiment scores. These are 'compund' sentiemnt scores,
+		as they are based on negative, neutral and postive sentiemnt scores. They range from -1 to 1. You can
+		also find aggregated sentiemnt scores for each of your document and for your entire corpora.</p>
+		
+		<p>If you want to know more about the process or how to interpret your result you check out
+		 the FAQ or the About section.</p>
 		</br></br>
 		<button type="submit" name="submit" class="general_button" onclick="window.open('{% url 'mlqda:download-zip-results' zip_name %}')"> 
 			<p class="button_text"> Download results </p>
 		</button>
 		</br></br>
+		<div class="topic_flex">
 		{% for topic, tuple in topics.items %}
-			<div class="topic_list">
-				{{topic}}
-				</br></br>
-				{% for word, contrib in tuple %}		
-					{{word}}: {{contrib}}
-					</br></br>
-				{% endfor %}
-				</br></br>
-			</div>
+			<h2>Topic {{topic}}</h2>
+			{% for contrib, word in tuple %}		
+				<p>{{word}}: {{contrib}}</p>
+			{% endfor %}
 		{% endfor %}
+		</div>
 		</br></br>
 		<button type="submit" name="submit" class="general_button" onclick="window.open('{% static 'images/logo.png' %}')">
 			<p class="button_text"> Download results </p>
