@@ -301,7 +301,20 @@ class TopicModelling:
             with doc.create(Section('Sentiment Analysis')):
                 corpus_sentiment_mean = corpus_sentiment_sum/len(self.datafiles)
                 corpus_result = "This set of documents has an avarge of {avg:.2f} sentiment score."
+                sentiment_description = """
+                 Sentiment scores can be found on the left-hand side of the table.
+                These scores are called 'compound sentiment scores' as
+                they are calculated from negative, neutral and positive
+                sentiment scores. The displayed scores range from -1 to 1,
+                so in essence you can interpret them as percentages.
+                For example a score of +0.25 could be interpreted as 25% positive.
+                When compiling the document, the system calculates the sentiment score
+                for every sentence. These sentence-sentiment scores are then aggregated
+                into a document and a corpora wide sentiemnt score. This way,
+                you end up with an avarge sentiment score for each of your uploaded
+                document and with one avarge sentiment score for all of your documents."""
                 doc.append(corpus_result.format(avg=corpus_sentiment_mean))
+                doc.append(sentiment_description.replace('\n', ' '))
 
             doc.generate_tex(path)
 
