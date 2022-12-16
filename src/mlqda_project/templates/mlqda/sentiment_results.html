@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% extends 'mlqda/base.html' %}
+{% load static %}
+
+{% block title_block%}
+	Contact
+{% endblock %}
+
+{% block body_block %}
+	<div class="flex-container", id="maintext">
+		<h2>Sentiment Analysis Results</h2>
+		<p>Next to the sentences, you can also see the sentiment scores. These are 'compund' sentiemnt scores,
+		as they are based on negative, neutral and postive sentiemnt scores. They range from -1 to 1. You can
+		also find aggregated sentiemnt scores for each of your document and for your entire corpora.</p>
+		
+		<p>If you want to know more about the process or how to interpret your result you check out
+		 the FAQ or the About section.</p>
+		</br></br>
+		<button type="submit" name="submit" class="general_button" onclick="window.open('{% url 'mlqda:download-files' result_path %}')"> 
+			<p class="button_text"> Download results </p>
+		</button>		
+	</div>
+{% endblock %}

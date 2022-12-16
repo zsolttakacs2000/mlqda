@@ -11,6 +11,7 @@ import json
 from zipfile import ZipFile
 
 from mlqda.topic_modelling import TopicModelling
+from mlqda.sentiment_analyser import SentimentAnalyser
 from mlqda.models import FileCollector, FileContainer
 
 
@@ -72,7 +73,7 @@ class ViewTests(TestCase):
                     current_file = FileContainer(file=test_doc, first_name=collector)
                     current_file.save()
 
-        response = self.client.get(reverse('mlqda:analyser-redirect',
+        response = self.client.get(reverse('mlqda:topic-modelling-results',
                                            kwargs={'collector_id': collector.collector_id}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "The script identified")
@@ -81,7 +82,7 @@ class ViewTests(TestCase):
         """
         Testing of analyser starting page loads correctly
         """
-        response = self.client.get(reverse('mlqda:analyser-start'))
+        response = self.client.get(reverse('mlqda:topic-modelling-start'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response,
                             'Please upload your files to the')
@@ -89,7 +90,7 @@ class ViewTests(TestCase):
     def test_post_analyser_start(self):
         test_content = "this is the test content"
         test_doc = SimpleUploadedFile('test_text.txt', test_content.encode(), 'text/plain')
-        response = self.client.post(reverse('mlqda:analyser-start'), {'file': test_doc})
+        response = self.client.post(reverse('mlqda:topic-modelling-start'), {'file': test_doc})
         self.assertEqual(response.status_code, 302)
 
     def test_faq(self):
@@ -100,6 +101,49 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response,
                             'How do I remove these unnecesarry texts?')
+
+    def test_sentiment_start(self):
+        """
+        Testing that sentiment analyser starting page loads correctly
+        """
+        response = self.client.get(reverse('mlqda:sentiment-start'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response,
+                            'Please upload your files to the')
+        self.assertContains(response,
+                            'Sentiment Analyser')
+
+    def test_post_sentiment_start(self):
+        """
+        Testing if start page of sentiment analyser correctly redirects
+        """
+        test_content = "this is the test content"
+        test_doc = SimpleUploadedFile('test_text.txt', test_content.encode(), 'text/plain')
+        response = self.client.post(reverse('mlqda:sentiment-start'), {'file': test_doc})
+        self.assertEqual(response.status_code, 302)
+
+    def test_sentiment_result(self):
+        """
+        Testing if sentiment results page loads correctly
+        """
+        collector = FileCollector(first_name="test_files.txt")
+        collector.save()
+        test_path = os.path.relpath(settings.TEST_DIR, start=os.curdir)
+
+        for file in os.listdir(test_path):
+            file_path = os.path.join(test_path, file)
+            if os.path.isfile(file_path):
+                with open(file_path, 'r') as f:
+                    test_content = f.read().encode('utf-8')
+                    test_doc = SimpleUploadedFile(file_path, test_content)
+                    current_file = FileContainer(file=test_doc, first_name=collector)
+                    current_file.save()
+
+        response = self.client.get(reverse('mlqda:sentiment-results',
+                                           kwargs={'collector_id': collector.collector_id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Sentiment Analysis Results")
+        self.assertContains(response, "Next to the sentences, you can")
 
 
 class TopicModellingTests(TestCase):
@@ -257,3 +301,46 @@ class TopicModellingTests(TestCase):
         os.remove(test_viz_path)
         os.remove(test_zip_path)
         os.remove(test_interactive_path)
+
+
+class SentimentAnalysisTests(TestCase):
+    def get_test_files(self):
+        test_path = os.path.relpath(settings.TEST_DIR, start=os.curdir)
+        test_paths = []
+        for file in sorted(os.listdir(test_path)):
+            file_path = os.path.join(test_path, file)
+            if os.path.isfile(file_path):
+                test_paths.append(file_path)
+        return test_paths
+
+    def test_constructor(self):
+        test_files = self.get_test_files()
+        test_sa = SentimentAnalyser(test_files, 2)
+
+        self.assertTrue('overtakes' in test_sa.datafiles[1])
+        self.assertEqual(len(test_sa.datafiles), len(test_files))
+        self.assertTrue('marketing' in test_sa.datafiles[1])
+
+    def test_create_file_models(self):
+        test_file_collector = FileCollector(2, "test")
+        test_file_collector.save()
+        test_files = self.get_test_files()
+        test_sa = SentimentAnalyser(test_files, int(test_file_collector.collector_id))
+
+        for path in test_files:
+            test_sa.create_model(path)
+
+        test_objects = FileContainer.objects.filter(first_name=test_file_collector.collector_id)
+
+        self.assertEqual(len(test_objects), len(test_files))
+
+    def test_run_sentiment_analyser(self):
+        test_file_collector = FileCollector(2, "test")
+        test_file_collector.save()
+        test_files = self.get_test_files()
+        test_sa = SentimentAnalyser(test_files, int(test_file_collector.collector_id))
+
+        test_result_path = test_sa.run_sentiment_analyser()
+        result_file = FileContainer.objects.filter(file_name=test_result_path)[0]
+
+        self.assertTrue(os.path.isfile(str(result_file.file)))

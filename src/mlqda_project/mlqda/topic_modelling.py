@@ -26,10 +26,8 @@ import matplotlib.ticker
 import pyLDAvis.gensim_models
 import subprocess
 from distutils.spawn import find_executable
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 nltk.download('stopwords')
-nltk.download('vader_lexicon')
 
 
 def get_datafiles(path_list):
@@ -248,18 +246,16 @@ class TopicModelling:
                     doc.append(text)
                     doc.append("\n")
 
-            corpus_sentiment_sum = 0
-
             for file in self.datafiles:
                 with doc.create(
                         Section('Highlights from text '+str(self.datafiles.index(file)+1))
                         ):
-                    tabular_args = Arguments('tabularx', NoEscape(r'\textwidth'), '|l|X|')
+                    tabular_args = Arguments('tabularx', NoEscape(r'\textwidth'), '|X|X|')
                     doc.append(Command("begin", arguments=tabular_args))
 
-                    senti = NoEscape(Command("textbf", arguments="Sentiment").dumps())
+                    topic_words = NoEscape(Command("textbf", arguments="Topic Words").dumps())
                     sente = NoEscape(Command("textbf", arguments="Sentence").dumps())
-                    header = "&".join([senti, sente])+double_esc
+                    header = "&".join([topic_words, sente])+double_esc
                     doc.append(Command("hline"))
                     doc.append(NoEscape(header))
                     doc.append(Command("hline"))
@@ -274,14 +270,12 @@ class TopicModelling:
 
                     sentences = file.split(". ")
 
-                    sum_sentence_sentiment = 0
                     for sentence in sentences:
                         row = []
-                        sentiment_analyser = SentimentIntensityAnalyzer()
-                        sentiment_scores = sentiment_analyser.polarity_scores(str(sentence))
-                        compound_score = sentiment_scores['compound']
-                        sum_sentence_sentiment += compound_score
-                        row.append(str(compound_score))
+
+                        present = [word for word in topic if word in sentence]
+                        present_words = ", ".join(present)
+                        row.append(present_words)
 
                         if any(word in str(sentence) for word in topic):
                             unaccented_string = unidecode.unidecode(str(sentence))
@@ -293,28 +287,6 @@ class TopicModelling:
                         doc.append(Command("hline"))
 
                     doc.append(Command("end", arguments=Arguments('tabularx')))
-                    avg_sentence_sentiment = sum_sentence_sentiment/len(sentences)
-                    corpus_sentiment_sum += avg_sentence_sentiment
-                    sentence_result = "This document has an avarge of {avg:.2f} sentiment score."
-                    doc.append(sentence_result.format(avg=avg_sentence_sentiment))
-
-            with doc.create(Section('Sentiment Analysis')):
-                corpus_sentiment_mean = corpus_sentiment_sum/len(self.datafiles)
-                corpus_result = "This set of documents has an avarge of {avg:.2f} sentiment score."
-                sentiment_description = """
-                 Sentiment scores can be found on the left-hand side of the table.
-                These scores are called 'compound sentiment scores' as
-                they are calculated from negative, neutral and positive
-                sentiment scores. The displayed scores range from -1 to 1,
-                so in essence you can interpret them as percentages.
-                For example a score of +0.25 could be interpreted as 25% positive.
-                When compiling the document, the system calculates the sentiment score
-                for every sentence. These sentence-sentiment scores are then aggregated
-                into a document and a corpora wide sentiemnt score. This way,
-                you end up with an avarge sentiment score for each of your uploaded
-                document and with one avarge sentiment score for all of your documents."""
-                doc.append(corpus_result.format(avg=corpus_sentiment_mean))
-                doc.append(sentiment_description.replace('\n', ' '))
 
             doc.generate_tex(path)
 

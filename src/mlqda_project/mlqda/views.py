@@ -10,6 +10,7 @@ from django.http import FileResponse
 from mlqda.forms import FileForm
 from mlqda.models import FileCollector, FileContainer
 from mlqda.topic_modelling import TopicModelling
+from mlqda.sentiment_analyser import SentimentAnalyser
 
 import os
 
@@ -34,7 +35,7 @@ def about(request):
     return render(request, 'mlqda/about.html', context=context_dict)
 
 
-def analyser_start(request):
+def topic_modelling_start(request):
     """
     Function to link to the starting view of the analyser
     @param request: incoming request
@@ -50,12 +51,12 @@ def analyser_start(request):
             for file in files:
                 current_file = FileContainer.objects.create(file=file, first_name=collector)
                 current_file.save()
-            return redirect(reverse('mlqda:analyser-redirect',
+            return redirect(reverse('mlqda:topic-modelling-results',
                                     kwargs={'collector_id': collector.collector_id}))
     else:
         form = FileForm()
     context_dict['form'] = form
-    return render(request, 'mlqda/analyser_start.html', context=context_dict)
+    return render(request, 'mlqda/topic_modelling_start.html', context=context_dict)
 
 
 def contact(request):
@@ -68,34 +69,12 @@ def contact(request):
     return render(request, 'mlqda/contact.html', context=context_dict)
 
 
-def analyser_results(request):
+def topic_modelling_results(request, collector_id):
     """
     Function to link result view of the analyser
     @param request: incoming request
     @return: rendered about page as an html with the results included in the
     context dictionary - mlqda/analyser_results.html
-    """
-    # context_dict = {'topics': {'Topic 1': [('Network', 0.0300),
-    #                                        ('Connection', 0.0280),
-    #                                        ('Internet', 0.0250),
-    #                                        ('System', 0.0240),
-    #                                        ('Socket', 0.0150)],
-    #                            'Topic 2': [('Education', 0.0250),
-    #                                        ('Classroom', 0.0240),
-    #                                        ('Lecture', 0.0190),
-    #                                        ('School', 0.0180),
-    #                                        ('University', 0.0170)]
-    #                            }
-    #                 }
-    # context_dict['total_topics'] = len(context_dict['topics'])
-    # return render(request, 'mlqda/analyser_results.html', context=context_dict)
-
-
-def analyser_redirect(request, collector_id):
-    """
-    Function to link the redirect view of the analyser
-    @param request: incoming request
-    @return: rendered about page as an html - mlqda/analyser_redirect.html
     """
     context_dict = {}
     collector = FileCollector.objects.get(collector_id=collector_id)
@@ -115,7 +94,7 @@ def analyser_redirect(request, collector_id):
     context_dict['topics'] = tm.result_dict
     context_dict['total_topics'] = len(context_dict['topics'])
     context_dict['zip_name'] = tm.zip_name
-    return render(request, 'mlqda/analyser_results.html', context=context_dict)
+    return render(request, 'mlqda/topic_modelling_results.html', context=context_dict)
 
 
 def faq_page(request):
@@ -128,11 +107,58 @@ def faq_page(request):
     return render(request, 'mlqda/faq.html', context=context_dict)
 
 
-def download_zip_results(request, file_name):
+def download_files(request, file_name):
     """
-    Function to enable zip file downoad of results. Takes file name as a parameter.
+    Function to enable file downoad of results. Takes file name as a parameter.
     Finds FileContainer object based on file name and downloads the appropriate file.
     """
     result_file = FileContainer.objects.filter(file_name=file_name)[0]
     response = FileResponse(open(str(result_file.file), 'rb'))
     return response
+
+
+def sentiment_start(request):
+    """
+    Function to link to the starting view of the sentiment analyser
+    @param request: incoming request
+    @return: rendered start page (mlqda/analyser_start.html)
+    or the redirect page (mlqda/analyser-redirect)
+    """
+    context_dict = {}
+    if request.method == 'POST':
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            files = request.FILES.getlist('file')
+            collector = FileCollector(first_name=str(files[0]))
+            collector.save()
+            for file in files:
+                current_file = FileContainer.objects.create(file=file, first_name=collector)
+                current_file.save()
+            return redirect(reverse('mlqda:sentiment-results',
+                                    kwargs={'collector_id': collector.collector_id}))
+    else:
+        form = FileForm()
+    context_dict['form'] = form
+    return render(request, 'mlqda/sentiment_start.html', context=context_dict)
+
+
+def sentiment_results(request, collector_id):
+    """
+    Function to display sentiment analysis reuslts
+    @param request: incoming request
+    @return: rendered about page as an html - mlqda/sentiment_redirect.html
+    """
+    context_dict = {}
+    collector = FileCollector.objects.get(collector_id=collector_id)
+    files = FileContainer.objects.filter(first_name=collector)
+
+    datafiles_paths = []
+    for file in files:
+        path = os.path.join(settings.MEDIA_DIR, str(file.file))
+        datafiles_paths.append(path)
+
+    sa = SentimentAnalyser(datafiles_paths, collector_id)
+    result = sa.run_sentiment_analyser()
+
+    context_dict['result_path'] = result
+    return render(request, 'mlqda/sentiment_results.html', context=context_dict)
