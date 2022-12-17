@@ -23,5 +23,6 @@ urlpatterns = [
     path('download-files/<file_name>/',
          views.download_files,
          name='download-files'),
+    path('delete-files/', views.delete_container, name='delete-files'),
 
 ]

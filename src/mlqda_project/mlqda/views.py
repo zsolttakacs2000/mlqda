@@ -5,7 +5,7 @@ Python files to contain views for the MLQDA webapp
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.conf import settings
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 
 from mlqda.forms import FileForm
 from mlqda.models import FileCollector, FileContainer
@@ -94,6 +94,7 @@ def topic_modelling_results(request, collector_id):
     context_dict['topics'] = tm.result_dict
     context_dict['total_topics'] = len(context_dict['topics'])
     context_dict['zip_name'] = tm.zip_name
+    context_dict['collector_id'] = collector_id
     return render(request, 'mlqda/topic_modelling_results.html', context=context_dict)
 
 
@@ -161,4 +162,21 @@ def sentiment_results(request, collector_id):
     result = sa.run_sentiment_analyser()
 
     context_dict['result_path'] = result
+    context_dict['collector_id'] = collector_id
     return render(request, 'mlqda/sentiment_results.html', context=context_dict)
+
+
+def delete_container(request):
+    collector_id = request.GET['collector_id']
+    collector = FileCollector.objects.get(collector_id=collector_id)
+    files = FileContainer.objects.filter(first_name=collector)
+
+    for file in files:
+        file.delete()
+        if os.path.exists(str(file.file)):
+            print(str(file.file))
+            os.remove(str(file.file))
+
+    collector.delete()
+
+    return HttpResponse("deleted "+str(collector_id))

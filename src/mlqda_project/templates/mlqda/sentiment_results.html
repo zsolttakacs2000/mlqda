@@ -20,4 +20,27 @@
 			<p class="button_text"> Download results </p>
 		</button>		
 	</div>
+	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script>
+		var this_collector_id = {{ collector_id }};
+		var del_msg = 'deleted files: '
+		var final_msg = del_msg.concat(this_collector_id)
+		window.onbeforeunload = function() { return confirmExit(); }
+		window.onunload = function() { return deleteF(); }
+
+
+		function confirmExit() {
+			return "Leaving this page will delete all your data!";
+		}
+		
+		function deleteF(){
+			$.ajax({
+				method:'GET',
+				url:'/mlqda/delete-files/',
+				data:{collector_id:this_collector_id}
+			}).done(function() {
+				alert(final_msg)
+			});
+		}
+	</script>
 {% endblock %}
