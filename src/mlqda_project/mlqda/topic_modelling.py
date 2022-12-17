@@ -26,6 +26,7 @@ import matplotlib.ticker
 import pyLDAvis.gensim_models
 import subprocess
 from distutils.spawn import find_executable
+import threading
 import nltk
 nltk.download('stopwords')
 
@@ -51,6 +52,7 @@ class TopicModelling:
         self.processed_files = []
         self.structures = {}
         self.result_dict = {}
+        self.models = []
 
     def process_files(self):
         """
@@ -174,22 +176,35 @@ class TopicModelling:
                                                     chunksize=100,
                                                     passes=10,
                                                     alpha="auto")
+        self.models.append(lda_model)
         return lda_model
 
     def dynamic_lda(self):
-        models = []
+        """
+        Function to dynamically run multiple lda models at the same time.
+        Creating threads for each possible model and start them at the same time.
+        When all of them have finished, save the one with the highest coherence score.
+        """
         coherence_scores = []
+        threads = []
         for i in range(2, len(self.datafiles)+1):
-            current_model = self.run_lda(i)
+            current_thread = threading.Thread(target=self.run_lda, args=(i, ))
+            threads.append(current_thread)
+
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        for current_model in self.models:
             current_coherence = CoherenceModel(model=current_model,
                                                texts=self.structures['trigram_texts'],
                                                coherence='c_v')
-            models.append(current_model)
             coherence_scores.append(current_coherence.get_coherence())
 
         max_coherence = max(coherence_scores)
         max_index = coherence_scores.index(max_coherence)
-        max_model = models[max_index]
+        max_model = self.models[max_index]
 
         self.lda_model = max_model
 
