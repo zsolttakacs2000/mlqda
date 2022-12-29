@@ -6,6 +6,7 @@ Inspiration of the processes and steps were taken from:
 from django.conf import settings
 import os
 from mlqda.models import FileCollector, FileContainer
+from mlqda.utils import get_datafiles
 from pylatex import Document, Section, Package, Command, LargeText, NoEscape
 from pylatex.base_classes import Arguments
 from pylatex.utils import bold
@@ -15,15 +16,6 @@ from distutils.spawn import find_executable
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 nltk.download('vader_lexicon')
-
-
-def get_datafiles(path_list):
-    full_text = []
-    for file_path in path_list:
-        with open(file_path, 'r', encoding="utf8") as f:
-            text = f.read().replace('\n', ' ')
-            full_text.append(text)
-    return full_text
 
 
 class SentimentAnalyser:
@@ -37,17 +29,27 @@ class SentimentAnalyser:
         self.collector_id = collector_id
 
     def create_model(self, location):
+        """
+        Function to create model representation of files as FileContainers
+        """
         file_path = os.path.join(settings.MEDIA_DIR, location)
         collector = FileCollector.objects.get(collector_id=self.collector_id)
         result_model = FileContainer.objects.create(first_name=collector, file=file_path)
         result_model.save()
 
     def remove_input_files(self):
+        """
+        Function to remove uploaded files after processing them
+        """
         for file in self.datafile_paths:
             if "test" not in str(file):
                 os.remove(file)
 
     def run_sentiment_analyser(self):
+        """
+        Function to compile result pdf. Adds explanatory paragraphs.
+        Sentiment scores calculated on a per sentence basis. 
+        """
         double_esc = NoEscape("\\")+NoEscape("\\")
         corpus_sentiment_sum = 0
         col_id = str(self.collector_id)

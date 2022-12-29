@@ -14,6 +14,7 @@ import json
 from django.conf import settings
 import os
 from mlqda.models import FileCollector, FileContainer
+from mlqda.utils import get_datafiles
 import re
 from zipfile import ZipFile
 import statistics
@@ -29,15 +30,6 @@ from distutils.spawn import find_executable
 import threading
 import nltk
 nltk.download('stopwords')
-
-
-def get_datafiles(path_list):
-    full_text = []
-    for file_path in path_list:
-        with open(file_path, 'r', encoding="utf8") as f:
-            text = f.read().replace('\n', ' ')
-            full_text.append(text)
-    return full_text
 
 
 class TopicModelling:
@@ -209,6 +201,11 @@ class TopicModelling:
         self.lda_model = max_model
 
     def get_lda_output(self):
+        """
+        Function to extract the required information from the best model.
+        Saves the information as a nested a dictionary, where every topic is a key
+        to anoter dictionary with word and contribution pairs.
+        """
         topics = self.lda_model.print_topics()
         for topic in topics:
             topic_contrib = []
@@ -227,6 +224,14 @@ class TopicModelling:
         return self.result_dict
 
     def create_highlights(self):
+        """
+        Function to compile a pdf with the higlighted results.
+        Adds explanatory paragrpahs to hepl the user interpret the results.
+        Orders every document in the corpus to its own paragraph where each sentence is a row.
+        Next the them, the user can find any of the topic words present in that sentence.
+        If at least one word is present, the sentence is highlighted.
+        """
+
         highlight_paths = []
         words = []
         for topic, contrib_list in self.result_dict.items():
@@ -319,6 +324,10 @@ class TopicModelling:
             self.highlight_paths = highlight_paths
 
     def create_visualisations(self):
+        """
+        Function to manually create visualisation to the lda topic models.
+        """
+
         collector = str(self.collector_id)
         path = os.path.join(settings.MEDIA_DIR,
                             collector+str('_result_visualisation.png'))
@@ -344,6 +353,10 @@ class TopicModelling:
         return path
 
     def create_interactive_visualisation(self):
+        """
+        Function to create interactive visualisations to the lda topic models.
+        """
+
         p = pyLDAvis.gensim_models.prepare(self.lda_model,
                                            self.structures['corpus'],
                                            self.structures['id2word'])
@@ -354,6 +367,13 @@ class TopicModelling:
         return path
 
     def compile_results(self):
+        """
+        Function to compile a zip file with all the results.
+        Uses data provided by get_lda_output, create_highlights, create_highlights,
+        create_interactive_visualisation
+        Deletes every file apart from the zip file before returning a peth to the zip file.
+        """
+
         self.get_lda_output()
         self.create_highlights()
         viz_path = self.create_visualisations()
