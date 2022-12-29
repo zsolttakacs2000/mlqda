@@ -48,7 +48,7 @@ class SentimentAnalyser:
     def run_sentiment_analyser(self):
         """
         Function to compile result pdf. Adds explanatory paragraphs.
-        Sentiment scores calculated on a per sentence basis. 
+        Sentiment scores calculated on a per sentence basis.
         """
         double_esc = NoEscape("\\")+NoEscape("\\")
         corpus_sentiment_sum = 0
