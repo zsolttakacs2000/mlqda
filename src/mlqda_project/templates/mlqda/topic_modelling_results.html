@@ -28,15 +28,19 @@
 			<p class="button_text"> Download results </p>
 		</button>
 		</br></br>
-		<div class="topic_flex"  style="--columns: 2;">
+	</div>
+
+	<div class="topic_results">
+		<h1>Topic Word Contribution</h1>
 		{% for topic, tuple in topics.items %}
 			<h2>Topic {{topic}}</h2>
-			{% for contrib, word in tuple %}		
-				<p>{{word}}: {{contrib}}</p>
-			{% endfor %}
+			<div class="topic_grid">
+				{% for contrib, word in tuple %}		
+					<p>{{word}}: {{contrib}}</p>
+				{% endfor %}
+			</div>
 		{% endfor %}
-		</div>		
-	</div>
+	</div>		
 
 	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script>
