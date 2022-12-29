@@ -8,7 +8,7 @@
 
 {% block body_block %}
 	<div class="flex-container", id="maintext">
-		<h2>Topic Modelling Results</h2>
+		<h1>Topic Modelling Results</h1>
 		<p>The script identified {{ total_topics }} topics in your files.</p>
 		
 		<p>Ideally these words describe distinct topics in your documents. You will need to deduct
@@ -28,7 +28,7 @@
 			<p class="button_text"> Download results </p>
 		</button>
 		</br></br>
-		<div class="topic_flex">
+		<div class="topic_flex"  style="--columns: 2;">
 		{% for topic, tuple in topics.items %}
 			<h2>Topic {{topic}}</h2>
 			{% for contrib, word in tuple %}		
