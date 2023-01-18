@@ -7,19 +7,19 @@
 {% endblock %}
 
 {% block body_block %}
-	<div class="flex-container", id="maintext">
+	<div class="flex-container" id="maintext">
 		<h1>Topic Modelling Results</h1>
 		<p>The script identified {{ total_topics }} topics in your files.</p>
 		
 		<p>Ideally these words describe distinct topics in your documents. You will need to deduct
 		what these topics are based on the top words. Next to the words, you can also see their contribution
 		as a percentage. Within the results, you can see highlighted sentences for each topic. Every
-		highlighted pdf shows you the sentences connected to that topic. Thsi way, you can see which sentences
+		highlighted pdf shows you the sentences connected to that topic. This way, you can see which sentences
 		are connected to the topics.</p>
 
-		<p>Next to the sentences, you can also see the sentiment scores. These are 'compund' sentiemnt scores,
-		as they are based on negative, neutral and postive sentiemnt scores. They range from -1 to 1. You can
-		also find aggregated sentiemnt scores for each of your document and for your entire corpora.</p>
+		<p>Next to the sentences, you can also see the sentiment scores. These are 'compound' sentiment scores,
+		as they are based on negative, neutral and positive sentiment scores. They range from -1 to 1. You can
+		also find aggregated sentiment scores for each of your document and for your entire corpora.</p>
 		
 		<p>If you want to know more about the process or how to interpret your result you check out
 		 the FAQ or the About section.</p>
@@ -42,7 +42,7 @@
 		{% endfor %}
 	</div>		
 
-	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="{% static 'js/jquery-3.3.1.min.js' %}" crossorigin="anonymous"></script>
 	<script>
 		var this_collector_id = {{ collector_id }};
 		var del_msg = 'deleted files: '

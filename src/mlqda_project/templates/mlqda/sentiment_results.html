@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block body_block %}
-	<div class="flex-container", id="maintext">
+	<div class="flex-container" id="maintext">
 		<h1>Sentiment Analysis Results</h1>
 		<p>Next to the sentences, you can also see the sentiment scores. These are 'compund' sentiemnt scores,
 		as they are based on negative, neutral and postive sentiemnt scores. They range from -1 to 1. You can
@@ -20,7 +20,7 @@
 			<p class="button_text"> Download results </p>
 		</button>		
 	</div>
-	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="{% static 'js/jquery-3.3.1.min.js' %}" crossorigin="anonymous"></script>
 	<script>
 		var this_collector_id = {{ collector_id }};
 		var del_msg = 'deleted files: '
