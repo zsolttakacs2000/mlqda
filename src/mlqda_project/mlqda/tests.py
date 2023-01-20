@@ -87,12 +87,12 @@ class ViewTests(TestCase):
 
     def test_faq(self):
         """
-        Testing if about page loads correctly
+        Testing if faq page loads correctly
         """
         response = self.client.get(reverse('mlqda:faq'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response,
-                            'How do I remove these unnecesarry texts?')
+                            'How do I remove these unnecessary texts?')
 
     def test_sentiment_start(self):
         """

@@ -5,7 +5,7 @@ Python files to contain views for the MLQDA webapp
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.conf import settings
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse
 
 from mlqda.forms import FileForm
 from mlqda.models import FileCollector, FileContainer
@@ -93,7 +93,7 @@ def topic_modelling_results(request, collector_id):
     tm.compile_results()
     context_dict['topics'] = tm.result_dict
     context_dict['total_topics'] = len(context_dict['topics'])
-    context_dict['zip_name'] = tm.zip_name
+    context_dict['result_path'] = tm.zip_name
     context_dict['collector_id'] = collector_id
     return render(request, 'mlqda/topic_modelling_results.html', context=context_dict)
 
@@ -147,7 +147,8 @@ def sentiment_results(request, collector_id):
     """
     Function to display sentiment analysis reuslts
     @param request: incoming request
-    @return: rendered about page as an html - mlqda/sentiment_redirect.html
+    @param collector_id: collector_id to identify a set of documents requres for the analysis
+    @return: rendered sentiment results page as an html - mlqda/sentiment_results.html
     """
     context_dict = {}
     collector = FileCollector.objects.get(collector_id=collector_id)
@@ -166,8 +167,15 @@ def sentiment_results(request, collector_id):
     return render(request, 'mlqda/sentiment_results.html', context=context_dict)
 
 
-def delete_container(request):
-    collector_id = request.GET['collector_id']
+def delete_container(request, delete_id):
+    """
+    Function to handle file deletion. Based on collector id, the function finds the collector
+    and deletes all related files.txt
+    @param request: incoming request
+    @param collector_id: collector_id to identify a set of documents requres for the analysis
+    @return: redrirects to index. Rendered index page - mlqda/index.html
+    """
+    collector_id = delete_id
     collector = FileCollector.objects.get(collector_id=collector_id)
     files = FileContainer.objects.filter(first_name=collector)
 
@@ -179,4 +187,4 @@ def delete_container(request):
 
     collector.delete()
 
-    return HttpResponse("deleted "+str(collector_id))
+    return redirect(reverse('mlqda:index'))

@@ -3,30 +3,43 @@
 {% load static %}
 
 {% block title_block%}
-	Contact
+	Topic Modelling Results
 {% endblock %}
 
 {% block body_block %}
-	<div class="flex-container", id="maintext">
+	<div class="flex-container" id="maintext">
 		<h1>Topic Modelling Results</h1>
 		<p>The script identified {{ total_topics }} topics in your files.</p>
 		
 		<p>Ideally these words describe distinct topics in your documents. You will need to deduct
 		what these topics are based on the top words. Next to the words, you can also see their contribution
 		as a percentage. Within the results, you can see highlighted sentences for each topic. Every
-		highlighted pdf shows you the sentences connected to that topic. Thsi way, you can see which sentences
+		highlighted pdf shows you the sentences connected to that topic. This way, you can see which sentences
 		are connected to the topics.</p>
 
-		<p>Next to the sentences, you can also see the sentiment scores. These are 'compund' sentiemnt scores,
-		as they are based on negative, neutral and postive sentiemnt scores. They range from -1 to 1. You can
-		also find aggregated sentiemnt scores for each of your document and for your entire corpora.</p>
+		<p>Next to the sentences, you can also see the sentiment scores. These are 'compound' sentiment scores,
+		as they are based on negative, neutral and positive sentiment scores. They range from -1 to 1. You can
+		also find aggregated sentiment scores for each of your document and for your entire corpora.</p>
 		
 		<p>If you want to know more about the process or how to interpret your result you check out
 		 the FAQ or the About section.</p>
+		
+		 <p><strong>Please remember to click the Delete Files button after you download your results.
+            If you forget to do so, the result file can potentially stay on the server for up to 6 hours before automatic deletion.
+            However, you will not be able to access these results again after leaving the page.
+		</strong></p> 
+
 		</br></br>
-		<button type="submit" name="submit" class="general_button" onclick="window.open('{% url 'mlqda:download-files' zip_name %}')"> 
-			<p class="button_text"> Download results </p>
-		</button>
+		
+		<div class="bttn_grp">
+			<button type="submit" name="submit" class="general_button" onclick="window.open('{% url 'mlqda:download-files' result_path %}')" data-inline="true"> 
+				Download Results
+			</button>		
+			<button type="submit" name="submit" class="delete_button" onclick="delete_redirect()" data-inline="true"> 
+				Delete Results
+			</button>
+		</div>
+
 		</br></br>
 	</div>
 
@@ -42,27 +55,18 @@
 		{% endfor %}
 	</div>		
 
-	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="{% static 'js/jquery-3.3.1.min.js' %}" crossorigin="anonymous"></script>
 	<script>
-		var this_collector_id = {{ collector_id }};
-		var del_msg = 'deleted files: '
-		var final_msg = del_msg.concat(this_collector_id)
 		window.onbeforeunload = function() { return confirmExit(); }
-		window.onunload = function() { return deleteF(); }
 
 
 		function confirmExit() {
 			return "Leaving this page will delete all your data!";
 		}
+
 		
-		function deleteF(){
-			$.ajax({
-				method:'GET',
-				url:'/mlqda/delete-files/',
-				data:{collector_id:this_collector_id}
-			}).done(function() {
-				alert(final_msg)
-			});
-		}
+		function delete_redirect () {
+			window.location.replace('{% url 'mlqda:delete-files' collector_id  %}');
+		}	
 	</script>
 {% endblock %}

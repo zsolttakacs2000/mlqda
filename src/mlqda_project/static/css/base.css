@@ -175,6 +175,7 @@ body {
 }
 
 .general_button {
+  display: inline-block;
   background-color: #FFF;
   padding: 1em;
   width: max-content;
@@ -183,20 +184,49 @@ body {
   border-color: rgb(0, 59, 111);
   margin-right: 7%;
   border-style: solid;
+  margin: 0 auto;
+  display: inline;
+}
+
+.delete_button {
+  display: inline-block;
+  background-color: #FFF;
+  padding: 1em;
+  width: max-content;
+  height: min-content;
+  border-radius: 30px;
+  border-color: red;
+  margin-right: 7%;
+  border-style: solid;
+  color: #000;
+  margin: 0 auto;
+  display: inline;
 }
 
 .general_button:hover{
   background-color: rgb(0, 59, 111);
   border-color: #FFF;
-
+  color: #FFF;
 }
 
-.button_text{
-  color: #000;
-   font: bold;
+.delete_button:hover{
+  background-color: rgb(255, 0, 0);
+  border-color: #FFF;
+  color: #FFF;
 }
 
 .general_button:hover p{
   color: #FFF;
 	font: bold;
 }
+
+.delete_button:hover p{
+  color: #FFF;
+	font: bold;
+}
+
+.buttons {
+  width: 200px;
+  margin: 0 auto;
+  display: inline;}
+  
