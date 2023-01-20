@@ -147,7 +147,8 @@ def sentiment_results(request, collector_id):
     """
     Function to display sentiment analysis reuslts
     @param request: incoming request
-    @return: rendered about page as an html - mlqda/sentiment_redirect.html
+    @param collector_id: collector_id to identify a set of documents requres for the analysis
+    @return: rendered sentiment results page as an html - mlqda/sentiment_results.html
     """
     context_dict = {}
     collector = FileCollector.objects.get(collector_id=collector_id)
@@ -167,7 +168,13 @@ def sentiment_results(request, collector_id):
 
 
 def delete_container(request, delete_id):
-    print("delete_function")
+    """
+    Function to handle file deletion. Based on collector id, the function finds the collector
+    and deletes all related files.txt
+    @param request: incoming request
+    @param collector_id: collector_id to identify a set of documents requres for the analysis
+    @return: redrirects to index. Rendered index page - mlqda/index.html
+    """
     collector_id = delete_id
     collector = FileCollector.objects.get(collector_id=collector_id)
     files = FileContainer.objects.filter(first_name=collector)
