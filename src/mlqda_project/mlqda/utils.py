@@ -1,8 +1,12 @@
 import PyPDF2
 import docx
 import os
+import time
 
 from django.conf import settings
+
+from mlqda.models import FileCollector, FileContainer
+
 
 
 def read_txt(file_path):
@@ -79,3 +83,24 @@ def get_test_files(extension=".txt"):
         if os.path.isfile(file_path) and file_path.endswith(extension):
             test_paths.append(file_path)
     return test_paths
+
+def delete_all_uploaded_files():
+    """
+    Utility function to gather all files and delete them if they are older than 10 minutes.
+    """
+    collectors = FileCollector.objects.all()
+    print("deleted files:")
+
+    for collector in collectors:
+        files = FileContainer.objects.filter(first_name=collector)
+
+        for file in files:
+            if os.path.exists(str(file.file)):
+                creation = os.path.getmtime(str(file.file))
+                current = time.time()
+                age = (current - creation)/60
+                if age > 10:
+                    print(str(file.file))
+                    os.remove(str(file.file))
+                    file.delete()
+                    collector.delete()
