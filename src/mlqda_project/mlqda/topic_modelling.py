@@ -228,7 +228,7 @@ class TopicModelling:
         Function to compile a pdf with the higlighted results.
         Adds explanatory paragrpahs to hepl the user interpret the results.
         Orders every document in the corpus to its own paragraph where each sentence is a row.
-        Next the them, the user can find any of the topic words present in that sentence.
+        Next the, the user can find any of the topic words present in that sentence.
         If at least one word is present, the sentence is highlighted.
         """
 

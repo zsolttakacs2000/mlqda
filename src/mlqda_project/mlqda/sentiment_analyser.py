@@ -68,8 +68,6 @@ class SentimentAnalyser:
         doc.append(LargeText(bold("Sentiment Analysis results")))
 
         with doc.create(Section('Sentiment Analysis')):
-            corpus_sentiment_mean = corpus_sentiment_sum/len(self.datafiles)
-            corpus_result = "This set of documents has an avarge of {avg:.2f} sentiment score."
             sentiment_description = """
                 Sentiment scores can be found on the left-hand side of the table.
             These scores are called 'compound sentiment scores' as
@@ -79,10 +77,9 @@ class SentimentAnalyser:
             For example a score of +0.25 could be interpreted as 25% positive.
             When compiling the document, the system calculates the sentiment score
             for every sentence. These sentence-sentiment scores are then aggregated
-            into a document and a corpora wide sentiemnt score. This way,
-            you end up with an avarge sentiment score for each of your uploaded
-            document and with one avarge sentiment score for all of your documents."""
-            doc.append(corpus_result.format(avg=corpus_sentiment_mean))
+            into a document and a corpora wide sentiment score. This way,
+            you end up with an average sentiment score for each of your uploaded
+            document and with one average sentiment score for all of your documents."""
             doc.append(sentiment_description.replace('\n', ' '))
 
         for file in self.datafiles:
@@ -129,6 +126,13 @@ class SentimentAnalyser:
                 corpus_sentiment_sum += avg_sentence_sentiment
                 sentence_result = "This document has an avarge of {avg:.2f} sentiment score."
                 doc.append(sentence_result.format(avg=avg_sentence_sentiment))
+
+        with doc.create(Section('Overall sentiment score')):
+            corpus_sentiment_mean = corpus_sentiment_sum/len(self.datafiles)
+            corpus_result = "This set of documents has an average of {avg:.2f} sentiment score."
+            doc.append(corpus_result.format(avg=corpus_sentiment_mean))
+
+
 
         doc.generate_tex(path)
 

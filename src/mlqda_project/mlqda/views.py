@@ -93,7 +93,7 @@ def topic_modelling_results(request, collector_id):
     tm.compile_results()
     context_dict['topics'] = tm.result_dict
     context_dict['total_topics'] = len(context_dict['topics'])
-    context_dict['zip_name'] = tm.zip_name
+    context_dict['result_path'] = tm.zip_name
     context_dict['collector_id'] = collector_id
     return render(request, 'mlqda/topic_modelling_results.html', context=context_dict)
 
@@ -166,8 +166,9 @@ def sentiment_results(request, collector_id):
     return render(request, 'mlqda/sentiment_results.html', context=context_dict)
 
 
-def delete_container(request):
-    collector_id = request.GET['collector_id']
+def delete_container(request, delete_id):
+    print("delete_function")
+    collector_id = delete_id
     collector = FileCollector.objects.get(collector_id=collector_id)
     files = FileContainer.objects.filter(first_name=collector)
 
@@ -179,4 +180,4 @@ def delete_container(request):
 
     collector.delete()
 
-    return HttpResponse("deleted "+str(collector_id))
+    return redirect(reverse('mlqda:index'))
