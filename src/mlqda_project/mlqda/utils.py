@@ -8,7 +8,6 @@ from django.conf import settings
 from mlqda.models import FileCollector, FileContainer
 
 
-
 def read_txt(file_path):
     """
     utility function to read in a txt file and return the contents of the file
@@ -83,6 +82,7 @@ def get_test_files(extension=".txt"):
         if os.path.isfile(file_path) and file_path.endswith(extension):
             test_paths.append(file_path)
     return test_paths
+
 
 def delete_all_uploaded_files():
     """

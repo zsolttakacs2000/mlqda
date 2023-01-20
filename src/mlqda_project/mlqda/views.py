@@ -5,7 +5,7 @@ Python files to contain views for the MLQDA webapp
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.conf import settings
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse
 
 from mlqda.forms import FileForm
 from mlqda.models import FileCollector, FileContainer

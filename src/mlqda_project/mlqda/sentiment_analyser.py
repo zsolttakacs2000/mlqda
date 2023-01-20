@@ -132,8 +132,6 @@ class SentimentAnalyser:
             corpus_result = "This set of documents has an average of {avg:.2f} sentiment score."
             doc.append(corpus_result.format(avg=corpus_sentiment_mean))
 
-
-
         doc.generate_tex(path)
 
         my_pdf_latex = find_executable('pdflatex')
