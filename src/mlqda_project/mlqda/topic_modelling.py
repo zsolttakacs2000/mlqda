@@ -45,30 +45,42 @@ class TopicModelling:
         self.structures = {}
         self.result_dict = {}
         self.models = []
+        self.post_tags = ["NOUN", "ADJ", "VERB", "ADV"]
+        self.my_stopwords = nltk.corpus.stopwords.words("english")
+        self.nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
+
+    def filter_and_lemmatize(self, entries):
+        current_document = self.nlp(entries)
+        lemmatized_words = []
+
+        for word in current_document:
+            if word.pos_ in self.post_tags:
+                if str(word) not in self.my_stopwords:
+                    if str(word.lemma_) not in self.my_stopwords:
+                        lemmatized_words.append(word.lemma_)
+
+        lemmatized_text = " ".join(lemmatized_words)
+        return lemmatized_text
 
     def process_files(self):
         """
         function to help with pre-processing. Transforms files into list of words.
         Then lemmatizes and removes stopwords from those lists.
         """
-        postags = ["NOUN", "ADJ", "VERB", "ADV"]
-        my_stopwords = nltk.corpus.stopwords.words("english")
-        nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
-
         for current_text in self.datafiles:
-            current_document = nlp(current_text)
-            lemmatized_words = []
+            entries = re.sub(r'@\w+', '', current_text)
+            entries = re.sub(r'http\S+', '', entries)
 
-            for word in current_document:
-                if word.pos_ in postags:
-                    if str(word) not in my_stopwords and str(word.lemma_) not in my_stopwords:
-                        lemmatized_words.append(word.lemma_)
-
-            lemmatized_text = " ".join(lemmatized_words)
-
-            preprocessed_text = simple_preprocess(lemmatized_text, deacc=True)
-
-            self.processed_files.append(preprocessed_text)
+            if self.datafile_paths[0].endswith(".xlsx") or self.datafile_paths[0].endswith('.csv'):
+                entries = entries.split('MLQDAdataBreak')
+                for entry in entries:
+                    lemmatized_text = self.filter_and_lemmatize(entry)
+                    preprocessed_text = simple_preprocess(lemmatized_text, deacc=True)
+                    self.processed_files.append(preprocessed_text)
+            else:
+                lemmatized_text = self.filter_and_lemmatize(entries)
+                preprocessed_text = simple_preprocess(lemmatized_text, deacc=True)
+                self.processed_files.append(preprocessed_text)
 
     def create_helper_datastructures(self):
         """
@@ -177,9 +189,17 @@ class TopicModelling:
         Creating threads for each possible model and start them at the same time.
         When all of them have finished, save the one with the highest coherence score.
         """
+        if len(self.datafiles) < 3:
+            topic_number = 5
+        elif len(self.datafiles) < 12:
+            topic_number = len(self.datafiles)+1
+        else:
+            topic_number = 12
+
         coherence_scores = []
         threads = []
-        for i in range(2, len(self.datafiles)+1):
+
+        for i in range(2, topic_number):
             current_thread = threading.Thread(target=self.run_lda, args=(i, ))
             threads.append(current_thread)
 
@@ -288,7 +308,10 @@ class TopicModelling:
                     doc.append(Command("multicolumn", arguments=last_footer_args))
                     doc.append(Command("endlastfoot"))
 
-                    sentences = file.split(". ")
+                    if self.datafile_paths[0].endswith((".xlsx", '.csv')):
+                        sentences = file.split('MLQDAdataBreak')
+                    else:
+                        sentences = file.split(". ")
 
                     for sentence in sentences:
                         row = []
@@ -303,7 +326,7 @@ class TopicModelling:
                             row.append(NoEscape(highlight+double_esc))
                         else:
                             row.append(str(sentence)+double_esc)
-                        doc.append(NoEscape("&".join(row)))
+                        doc.append(NoEscape(" & ".join(row)))
                         doc.append(Command("hline"))
 
                     doc.append(Command("end", arguments=Arguments('tabularx')))
@@ -319,6 +342,10 @@ class TopicModelling:
             command = " && ".join([switch_cwd, compile_command])
             proc = subprocess.Popen(command, shell=True)
             proc.wait()
+
+            proc = subprocess.Popen(command, shell=True)
+            proc.wait()
+
             [os.remove(path+ext) for ext in ['.log', '.tex', '.aux']]
 
             self.highlight_paths = highlight_paths

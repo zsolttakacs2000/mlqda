@@ -2,6 +2,8 @@ import PyPDF2
 import docx
 import os
 import time
+import pandas as pd
+import re
 
 from django.conf import settings
 
@@ -49,6 +51,41 @@ def read_docx(file_path):
     return text
 
 
+def remove_nonlatex_chars(document_text):
+    """
+    utility function to remove characters that are not supported by latex
+    """
+    text = re.sub('&amp;', ' and ', document_text)
+    text = re.sub(r'&[a-zA-Z]+;', "", text)
+    text = re.sub('#', r'\#', text)
+    text = re.sub('_', '', text)
+    text = re.sub('^', '', text)
+    text = re.sub('{', '', text)
+    text = re.sub('}', '', text)
+
+    return text
+
+
+def read_csv(file_path):
+    """
+    utility function to read in a .csv file and return the contents of the file
+    """
+    my_csv = pd.read_csv(file_path, header=None)
+    document_text = ' MLQDAdataBreak '.join(my_csv.iloc[:, 0])
+    text = remove_nonlatex_chars(document_text)
+    return text
+
+
+def read_xlsx(file_path):
+    """
+    utility function to read in a .xlsx file and return the contents of the file
+    """
+    data = pd.read_excel(file_path, header=None)
+    document_text = ' MLQDAdataBreak '.join(data.iloc[:, 0])
+    text = remove_nonlatex_chars(document_text)
+    return text
+
+
 def get_datafiles(path_list):
     """
     utility function to read in a list of files and return all their content
@@ -61,6 +98,10 @@ def get_datafiles(path_list):
             text = read_pdf(file_path)
         elif file_path.endswith(".docx"):
             text = read_docx(file_path)
+        elif file_path.endswith(".csv"):
+            text = read_csv(file_path)
+        elif file_path.endswith(".xlsx"):
+            text = read_xlsx(file_path)
 
         full_text.append(text)
 
