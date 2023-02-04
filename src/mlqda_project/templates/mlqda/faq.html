@@ -3,32 +3,65 @@
 {% load static %}
 
 {% block title_block%}
-	FAQ - Frequently Asked Questions
+	FAQ (Frequently Asked Questions)
 {% endblock %}
 
 {% block body_block %}
-	<div class="flex-container", id="maintext">
-		<h1>Frequently Asked Questions</br></h1>
+	<div class="flex-container" id="maintext">
+		<h1>Frequently Asked Questions<br></h1>
+		<h2>Overview</h2>
+		<ul>
+			<li>Why do I need to prepare my files?</li>
+			<li>What pieces of texts should I remove from my files?</li>
+			<li>How do I remove these unnecessary texts?</li>
+			<li>Is there file limit?</li>
+			<li>How does the site handle my uploaded files?</li>
+			<li>How do I get my results?</li>
+			<li>How do I download my results?</li>
+			<li>How do I interpret my Topic Modelling/Thematic Analysis results?</li>
+			<li>How do I interpret my Sentiment Analysis results?</li>
+			<li>How do I open my results?</li>
+			<li>Are there any caveats?</li>
+		</ul>
+
 		<h2>Why do I need to prepare my files?</h2>
-		<p>The current implementation of the underlying machine learning script cannot identify the unnecesarry parts of your text files.
+		<p>The current implementation of the underlying machine learning script cannot identify the unnecessary parts of your text files.
 		Identifying recurring snippets of raw text is important but not something within the current scope of the software.
 		Leaving these unnecessary texts in, could lead to your results being wrong.
-		For example, if you keep the pseudonym for the participant in the text, the script could pick it up as an important word for a topic becuse it is recurring often.
-		However, in reality, the pseudonym of the participant does not carry any meaningful imformation regarding th underlying topics of your data.
+		For example, if you keep the pseudonym for the participant in the text, the script could pick it up as an important word for a topic because it is recurring often.
+		However, in reality, the pseudonym of the participant does not carry any meaningful information regarding th underlying topics of your data.
 		For this reason we ask you to remove any text that is not the text you want to analyse.
-		</br>
+		<br>
 		<strong>The current implementation does not support warnings if your text is not prepared correctly.</strong></p>
 
 		
 		<h2>What pieces of texts should I remove from my files?</h2>
 		<p>Strictly speaking any text that you do not wish to analyse. Most commonly these include:
-		Speaker names, Interview/focus group questions, Page numbers, Headers, Particiapnt information </p>
+		Speaker names, Interview/focus group questions, Page numbers, Headers, Participant information </p>
 		
 
-		<h2>How do I remove these unnecesarry texts?</h2>
+		<h2>How do I remove these unnecessary texts?</h2>
 		<p>There are mult ways to go on about this. Probably the easiest way is to make a copy of your files and just delete the lines that should not be included in the analysis.
-		After deleteing these lines, you can upload your new files in the Analyser tab.</p>
-		
+		After deleting these lines, you can upload your new files on either the Sentiment Analyser or the Topic Modelling tab.</p>
+
+
+		<h2>Is there file limit?</h2>
+		<p>Yes there is a file limit. Currently, the host server has an allocated memory of 5 GB. As the site is still in a pilot phase
+		this limit should be more than enough for the users. Because the files are automatically deleted this limit only applies
+		to any moment, not an overall constraint. For example, three separate user can upload 1 GB of files each at the same time.
+		However, the server would terminate the uploads when the storage is full until there is enough space to upload your files.
+		Conversely, a user is welcomed to use the site regularly even if the cumulative size of the files are well over 1 GB or even 5 GB.
+		The 1GB limit should be more than enough for an average user as it roughly translates to 10.000 documents or 50.000 pages across documents.</p>
+
+
+		<h2>How does the site handle my uploaded files?</h2>
+		<p>Your files are immediately deleted after processing. After creating the results, all the references and variables using the content are also deleted.
+		The result file is saved until you are on the results page. Reaching the result page, you are offered the choice to delete the result files from the server.
+		If you fail to do so, your files could be stored on the server for up to 6 hours. However, you will not be able to access these files after leaving/reloading the page.
+		<br>
+		<strong>Please ensure you save your results and click delete before exiting the page!</strong></p>
+
+
 
 		<h2>How do I get my results?</h2>
 		<p>After uploading your files, to site should take you a redirect page.
@@ -36,51 +69,51 @@
 		
 
 		<h2>How do I download my results?</h2>
-		<p>From the download page you can access the most important results files individually or you can download every file in zip folder.</p>
+		<p>From the download page you can access the most important results files individually, or you can download every file in zip folder.</p>
 		
 
-		<h2>How do I interpret my result file?</h2>
-		<p>Your results consits of multple parts with varying level of depth.
-		Firstly, you should recive a list of the most important words grouped by topic.
-		These topics are not definied so you need to deduct the content of the topics based on these words.
+		<h2>How do I interpret my Topic Modelling/Thematic Analysis results?</h2>
+		<p>Your results consists of multiple parts with varying level of depth.
+		You should receive a list of the most important words grouped by topic.
+		These topics are not defined, so you need to deduct the content of the topics based on these words.
 		Furthermore, you should receive a version of your original files where the sentences that contain one of the topic words are highlighted.
 		Finally, there are also a set of other files containing the transformed data like a document-term matrix. You can use these files to run your own script potentially.
 		</p>
-		<p>Secondly, your results should include sentiment scores. These can be found on the left-hand side
+
+		<h2>How do I interpret my Sentiment Analysis results?</h2>
+		<p>Your results should include sentiment scores. These can be found on the left-hand side
 		of the table. These scores are called 'compound sentiment scores' as they are calculated from negative,
 		neutral and positive sentiment scores. The displayed scores range from -1 to 1, so in essence you can
 		interpret them as percentages. For example a score of +0.25 could be interpreted as 25% positive.
 		When compiling the document, the system calculates the sentiment score for every sentence.
-		These sentence-sentiment scores are then aggregated into a document and a corpora wide sentiemnt score. 
-		This way, you end up with an avarge sentiment score for each of your uploaded document and with one avarge 
+		These sentence-sentiment scores are then aggregated into a document and a corpora wide sentiment score.
+		This way, you end up with an average sentiment score for each of your uploaded document and with one average
 		sentiment score for all of your documents.
 		</p>
 		
 
 		<h2>How do I open my results?</h2>
-		<p>The results come in easily accessable formats like .txt or .pdf files.</p>
+		<p>The results come in easily accessible formats like .txt or .pdf files.</p>
 		
 
 		<h2>Are there any caveats?</h2>
-		<p>The scope of this project is limited so far. There a few cavetas to keep in mind when using
+		<p>The scope of this project is limited so far. There a few caveats to keep in mind when using
 		the site. 
 		</p>
-		<p>
-			<ul>
-				<li>The only dynamic aspect of the topic modelling feature is the number of topics.
-					The appropriate number of topics is calculated based on the best coherence score.
-				</li>
-				<li>
-					All other aspect of LDA topic modelling apart from the number of topics is hard-coded and
-					cannot be changed by the user.
-				</li>
-				<li>
-					The sentiment analyser utalised in the script is a built in functionality of the NLTK library.
-					This sentiment analyser was trained on annotated Twitter data, so it might have different precision
-					values on texts from other origins.
-				</li>
-			</ul>
-		</p>
+		<ul>
+			<li>The only dynamic aspect of the topic modelling feature is the number of topics.
+				The appropriate number of topics is calculated based on the best coherence score.
+			</li>
+			<li>
+				All other aspect of LDA topic modelling apart from the number of topics is hard-coded and
+				cannot be changed by the user.
+			</li>
+			<li>
+				The sentiment analyser utilised in the script is a built-in functionality of the NLTK library.
+				This sentiment analyser was trained on annotated Twitter data, so it might have different precision
+				values on texts from other origins.
+			</li>
+		</ul>
 
 	</div>
 {% endblock %}

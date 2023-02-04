@@ -153,4 +153,50 @@
 * *2.5 hours* Develop result visualsiations and tests
 * *0.5 hours* Create agenda for next week
 
+### 15 Nov 2022
+
+* *0.5 hours* Supervisor meeting
+* *0.5 hours* Create meeting minutes
+
+### 19 Nov 2022
+
+* *1.5 hours* Research sentiment analysis implementations
+* *0.5 hours* Prepare supervisor meeting agenda
+
+### 22 Nov 2022
+* *0.5 hours* Supervisor meeting
+
+### 23 Nov 2022
+* *0.5 hours* Create meeting minutes
+
+### 25 Nov 2022
+* *0.5 hours* Implement minor refinements on topic modelling and its results
+* *1.0 hours* Implement NLTK built in sentiment analyser
+* *1.0 hours* Start adding sentiemnt scores to results
+
+### 26 Nov 2022
+* *2.0 hours* Aggregate sentiemnt scores and display sentiemnt scores on results (LaTeX)
+* *0.5 hours* Create supervisor meeting agenda
+
+### 29 Nov 2022
+* *0.5 hours* Supervisor meeting
+* *0.5 hours* Create meeting minutes
+
+### 2 Dec 2022
+* *1.5 hours* Update some info on front-end - extra information, result grid and pop-up
+
+### 3 Dec 2022
+* *4.0 hours* Fix pipeline by updating way of installing latex compiler and use manual command for compilation 
+ 
+### 6 Dec 2022
+* *0.5 hours* Supervisor meeting
+* *0.5 hours* Create meeting minutes
+
+### 8 Dec 2022
+ * 1.0 hours* Write up progress report
+ 
+### 16 Dec 2022
+ * *2.0 hours* Separate sentiment analysis from topic modelling
+ * *2.0 hours* Update naming conventions and references throughout the application
+ * *2.0 hours* Add extra descriptions and update result pdfs
 

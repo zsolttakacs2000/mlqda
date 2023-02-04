@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+{% extends 'mlqda/base.html' %}
+{% load static %}
+
+{% block title_block%}
+	Sentiment Results
+{% endblock %}
+
+{% block body_block %}
+	<div class="flex-container" id="maintext">
+		<h1>Sentiment Analysis Results</h1>
+		<p>Next to the sentences, you can also see the sentiment scores. These are 'compund' sentiemnt scores,
+		as they are based on negative, neutral and postive sentiemnt scores. They range from -1 to 1. You can
+		also find aggregated sentiemnt scores for each of your document and for your entire corpora.</p>
+		
+		<p>If you want to know more about the process or how to interpret your result you check out
+		 the FAQ or the About section.</p>
+
+		<p><strong>Please remember to click the Delete Files button after you download your results.
+            If you forget to do so, the result file can potentially stay on the server for up to 6 hours before automatic deletion.
+            However, you will not be able to access these results again after leaving the page.
+		</strong></p> 
+		</br></br>
+		
+		<div class="bttn_grp">
+			<button type="submit" name="submit" class="general_button" onclick="window.open('{% url 'mlqda:download-files' result_path %}')" data-inline="true"> 
+				Download Results
+			</button>		
+			<button type="submit" name="submit" class="delete_button" onclick="delete_redirect()" data-inline="true"> 
+				Delete Results
+			</button>
+		</div>
+		</br>		
+	</div>
+	<script src="{% static 'js/jquery-3.3.1.min.js' %}" crossorigin="anonymous"></script>
+	<script>
+		window.onbeforeunload = function() { return confirmExit(); }
+
+		function confirmExit() {
+			return "Leaving this page will delete all your data!";
+		}
+
+		function delete_redirect () {
+			window.location.replace('{% url 'mlqda:delete-files' collector_id  %}');
+		}
+	
+	</script>
+{% endblock %}

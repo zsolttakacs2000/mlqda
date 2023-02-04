@@ -3,19 +3,21 @@
 {% load static %}
 
 {% block title_block%}
-	Contact
+	Sentiment Analyser
 {% endblock %}
 
 {% block body_block %}
-	<div class="flex-container", id="maintext">
+	<div class="flex-container" id="maintext">
+		<h1>Sentiment Analyser</h1>
 		<p>Please upload your files to the area below. Make sure that the files only 
 		contain the text you wish to analyse. Please try to omit any headers,
 		page numbers, participant names or any form of text that you do not wish to analyse.
 		Leaving these items in can interfere with the results and undermine their validity.</P>
+		<p><strong>Under the current server we ask you to limit the cummulative size of your files to 1 GB. Thank you!</strong></p>
 	</div>
 
 	<div class="file_upload">
-		<form action="{% url 'mlqda:analyser-start' %}" method="post" enctype="multipart/form-data">
+		<form action="{% url 'mlqda:sentiment-start' %}" method="post" enctype="multipart/form-data">
 			{% csrf_token %}
             {% for hidden in form.hidden_fields %}
                 {{ hidden }}

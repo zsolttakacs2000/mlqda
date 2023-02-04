@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+{% extends 'mlqda/base.html' %}
+{% load static %}
+
+{% block title_block%}
+	Topic Modelling Start
+{% endblock %}
+
+{% block body_block %}
+	<div class="flex-container" id="maintext">
+		<h1>Topic Modelling for Thematic Analysis</h1>
+		<p>Please upload your files to the area below. Make sure that the files only 
+		contain the text you wish to analyse. Please try to omit any headers,
+		page numbers, participant names or any form of text that you do not wish to analyse.
+		Leaving these items in can interfere with the results and undermine their validity.</P>
+		<p><strong>Under the current server we ask you to limit the cummulative size of your files to 1 GB. Thank you!</strong></p>
+	</div>
+
+	<div class="file_upload">
+		<form action="{% url 'mlqda:topic-modelling-start' %}" method="post" enctype="multipart/form-data">
+			{% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            {% for field in form.visible_fields %}
+                <div>
+                    {{ field.errors }}
+                    {{ field.help_text }}<br />
+                </div>
+                <div>
+                    {{ field }}<br /><br />
+                </div>
+                <div></div>
+            {% endfor %}
+                <br />
+			<button type="submit" name="submit" class="general_button" onclick="return confirm('It might take a while to process your files! Please do not leave or reload the page.')">
+				<p class="button_text">Get Results</p>
+			</button>
+		</form>
+	</div>
+{% endblock %}

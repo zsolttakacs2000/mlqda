@@ -4,7 +4,7 @@
 <html>
 	<head lang="en">
 		<meta charset="UTF-8" />
-		<title>MLQDA</title>
+		<title>MLQDA - {% block title_block %}{% endblock %}</title>
 		<!-- CSS -->
 		<link rel="stylesheet" href="{% static 'css/base.css' %}" />
 		<!-- JavaScript -->
@@ -12,12 +12,13 @@
 	</head>
 	<body>
 		<div class="navbar">
-			<img src="{% static 'images/logo.png' %}" alt="Logo" height="75">
-			<strong><a href="{% url 'mlqda:contact' %}">Contact</a></strong>
-			<strong><a href="{% url 'mlqda:about' %}">About</a></strong>
-			<strong><a href="{% url 'mlqda:analyser-start' %}">Analyser</a></strong>
-			<strong><a href="{% url 'mlqda:faq' %}">FAQ</a></strong>
-			<strong><a href="{% url 'mlqda:index' %}">Home</a></strong>
+			<a href="{% url 'mlqda:contact' %} ">Contact</a>
+			<a href="{% url 'mlqda:about' %}">About</a>
+			<a href="{% url 'mlqda:topic-modelling-start' %}">Topic Modelling</a>
+			<a href="{% url 'mlqda:sentiment-start' %}">Sentiment Analyser</a>
+			<a href="{% url 'mlqda:faq' %}">FAQ</a>
+			<a href="{% url 'mlqda:index' %}">Home</a>
+			<img src="{% static 'images/logo.png' %}" alt="Logo">
 		</div>
 		{% block body_block %}
 		{% endblock %}

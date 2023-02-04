@@ -14,6 +14,7 @@ import json
 from django.conf import settings
 import os
 from mlqda.models import FileCollector, FileContainer
+from mlqda.utils import get_datafiles
 import re
 from zipfile import ZipFile
 import statistics
@@ -26,19 +27,9 @@ import matplotlib.ticker
 import pyLDAvis.gensim_models
 import subprocess
 from distutils.spawn import find_executable
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import threading
 import nltk
 nltk.download('stopwords')
-nltk.download('vader_lexicon')
-
-
-def get_datafiles(path_list):
-    full_text = []
-    for file_path in path_list:
-        with open(file_path, 'r', encoding="utf8") as f:
-            text = f.read().replace('\n', ' ')
-            full_text.append(text)
-    return full_text
 
 
 class TopicModelling:
@@ -53,6 +44,7 @@ class TopicModelling:
         self.processed_files = []
         self.structures = {}
         self.result_dict = {}
+        self.models = []
 
     def process_files(self):
         """
@@ -176,26 +168,44 @@ class TopicModelling:
                                                     chunksize=100,
                                                     passes=10,
                                                     alpha="auto")
+        self.models.append(lda_model)
         return lda_model
 
     def dynamic_lda(self):
-        models = []
+        """
+        Function to dynamically run multiple lda models at the same time.
+        Creating threads for each possible model and start them at the same time.
+        When all of them have finished, save the one with the highest coherence score.
+        """
         coherence_scores = []
+        threads = []
         for i in range(2, len(self.datafiles)+1):
-            current_model = self.run_lda(i)
+            current_thread = threading.Thread(target=self.run_lda, args=(i, ))
+            threads.append(current_thread)
+
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        for current_model in self.models:
             current_coherence = CoherenceModel(model=current_model,
                                                texts=self.structures['trigram_texts'],
                                                coherence='c_v')
-            models.append(current_model)
             coherence_scores.append(current_coherence.get_coherence())
 
         max_coherence = max(coherence_scores)
         max_index = coherence_scores.index(max_coherence)
-        max_model = models[max_index]
+        max_model = self.models[max_index]
 
         self.lda_model = max_model
 
     def get_lda_output(self):
+        """
+        Function to extract the required information from the best model.
+        Saves the information as a nested a dictionary, where every topic is a key
+        to anoter dictionary with word and contribution pairs.
+        """
         topics = self.lda_model.print_topics()
         for topic in topics:
             topic_contrib = []
@@ -214,6 +224,14 @@ class TopicModelling:
         return self.result_dict
 
     def create_highlights(self):
+        """
+        Function to compile a pdf with the higlighted results.
+        Adds explanatory paragrpahs to hepl the user interpret the results.
+        Orders every document in the corpus to its own paragraph where each sentence is a row.
+        Next the, the user can find any of the topic words present in that sentence.
+        If at least one word is present, the sentence is highlighted.
+        """
+
         highlight_paths = []
         words = []
         for topic, contrib_list in self.result_dict.items():
@@ -248,18 +266,16 @@ class TopicModelling:
                     doc.append(text)
                     doc.append("\n")
 
-            corpus_sentiment_sum = 0
-
             for file in self.datafiles:
                 with doc.create(
                         Section('Highlights from text '+str(self.datafiles.index(file)+1))
                         ):
-                    tabular_args = Arguments('tabularx', NoEscape(r'\textwidth'), '|l|X|')
+                    tabular_args = Arguments('tabularx', NoEscape(r'\textwidth'), '|X|X|')
                     doc.append(Command("begin", arguments=tabular_args))
 
-                    senti = NoEscape(Command("textbf", arguments="Sentiment").dumps())
+                    topic_words = NoEscape(Command("textbf", arguments="Topic Words").dumps())
                     sente = NoEscape(Command("textbf", arguments="Sentence").dumps())
-                    header = "&".join([senti, sente])+double_esc
+                    header = "&".join([topic_words, sente])+double_esc
                     doc.append(Command("hline"))
                     doc.append(NoEscape(header))
                     doc.append(Command("hline"))
@@ -274,14 +290,12 @@ class TopicModelling:
 
                     sentences = file.split(". ")
 
-                    sum_sentence_sentiment = 0
                     for sentence in sentences:
                         row = []
-                        sentiment_analyser = SentimentIntensityAnalyzer()
-                        sentiment_scores = sentiment_analyser.polarity_scores(str(sentence))
-                        compound_score = sentiment_scores['compound']
-                        sum_sentence_sentiment += compound_score
-                        row.append(str(compound_score))
+
+                        present = [word for word in topic if word in sentence]
+                        present_words = ", ".join(present)
+                        row.append(present_words)
 
                         if any(word in str(sentence) for word in topic):
                             unaccented_string = unidecode.unidecode(str(sentence))
@@ -293,28 +307,6 @@ class TopicModelling:
                         doc.append(Command("hline"))
 
                     doc.append(Command("end", arguments=Arguments('tabularx')))
-                    avg_sentence_sentiment = sum_sentence_sentiment/len(sentences)
-                    corpus_sentiment_sum += avg_sentence_sentiment
-                    sentence_result = "This document has an avarge of {avg:.2f} sentiment score."
-                    doc.append(sentence_result.format(avg=avg_sentence_sentiment))
-
-            with doc.create(Section('Sentiment Analysis')):
-                corpus_sentiment_mean = corpus_sentiment_sum/len(self.datafiles)
-                corpus_result = "This set of documents has an avarge of {avg:.2f} sentiment score."
-                sentiment_description = """
-                 Sentiment scores can be found on the left-hand side of the table.
-                These scores are called 'compound sentiment scores' as
-                they are calculated from negative, neutral and positive
-                sentiment scores. The displayed scores range from -1 to 1,
-                so in essence you can interpret them as percentages.
-                For example a score of +0.25 could be interpreted as 25% positive.
-                When compiling the document, the system calculates the sentiment score
-                for every sentence. These sentence-sentiment scores are then aggregated
-                into a document and a corpora wide sentiemnt score. This way,
-                you end up with an avarge sentiment score for each of your uploaded
-                document and with one avarge sentiment score for all of your documents."""
-                doc.append(corpus_result.format(avg=corpus_sentiment_mean))
-                doc.append(sentiment_description.replace('\n', ' '))
 
             doc.generate_tex(path)
 
@@ -332,6 +324,10 @@ class TopicModelling:
             self.highlight_paths = highlight_paths
 
     def create_visualisations(self):
+        """
+        Function to manually create visualisation to the lda topic models.
+        """
+
         collector = str(self.collector_id)
         path = os.path.join(settings.MEDIA_DIR,
                             collector+str('_result_visualisation.png'))
@@ -357,6 +353,10 @@ class TopicModelling:
         return path
 
     def create_interactive_visualisation(self):
+        """
+        Function to create interactive visualisations to the lda topic models.
+        """
+
         p = pyLDAvis.gensim_models.prepare(self.lda_model,
                                            self.structures['corpus'],
                                            self.structures['id2word'])
@@ -367,11 +367,16 @@ class TopicModelling:
         return path
 
     def compile_results(self):
+        """
+        Function to compile a zip file with all the results.
+        Uses data provided by get_lda_output, create_highlights, create_highlights,
+        create_interactive_visualisation
+        Deletes every file apart from the zip file before returning a peth to the zip file.
+        """
+
         self.get_lda_output()
         self.create_highlights()
         viz_path = self.create_visualisations()
-        interactive_viz = self.create_interactive_visualisation()
-        self.create_interactive_visualisation()
         collector = FileCollector.objects.get(collector_id=self.collector_id)
         path = os.path.join(settings.MEDIA_DIR, str(str(self.collector_id)+str('_results.json')))
         with open(path, 'w+') as output:
@@ -382,10 +387,8 @@ class TopicModelling:
         with ZipFile(zip_path, 'w') as zip_results:
             zip_results.write(path, str(os.path.basename(str(path))))
             zip_results.write(viz_path, str(os.path.basename(str(viz_path))))
-            zip_results.write(interactive_viz, str(os.path.basename(str(interactive_viz))))
             os.remove(path)
             os.remove(viz_path)
-            os.remove(interactive_viz)
             for highlight_file in self.highlight_paths:
                 zip_results.write(str(highlight_file)+".pdf",
                                   str(os.path.basename(str(highlight_file)+".pdf")))
