@@ -128,6 +128,8 @@ def get_test_files(extension=".txt"):
 def delete_all_uploaded_files():
     """
     Utility function to gather all files and delete them if they are older than 10 minutes.
+    First deletes files connected to models then all unrelated files too.
+    Unrelated files stay there, if there was an error during analysis.
     """
     collectors = FileCollector.objects.all()
     print("deleted files:")
@@ -145,3 +147,12 @@ def delete_all_uploaded_files():
                     os.remove(str(file.file))
                     file.delete()
                     collector.delete()
+        
+        every_file = os.listdir()
+        for file in every_file:
+            creation = os.path.getmtime(file)
+            current = time.time()
+            age = (current - creation)/60
+            if age > 20:
+                    print(str(file))
+                    os.remove(file)
