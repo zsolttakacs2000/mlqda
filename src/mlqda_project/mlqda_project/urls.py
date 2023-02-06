@@ -21,9 +21,12 @@ from django.conf.urls.static import static
 
 from mlqda import views
 
+handler500 = views.error_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('mlqda/', include('mlqda.urls')),
     path('', views.index, name='index'),
+    path('500/', views.error_view),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

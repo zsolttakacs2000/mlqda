@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+{% extends 'mlqda/base.html' %}
+{% load static %}
+
+{% block title_block%}
+	Error
+{% endblock %}
+
+{% block body_block %}
+	<div class="flex-container" id="maintext">
+		<h1>Error</h1>
+		<p>
+			The site encountered an error. Make sure you follow the appropriate guides.
+		</p>
+		<p>
+			Make sure all your files have one of the expected file extensions (txt, docx, pdf, csv, xlsx)
+		</p>
+		<p>
+			Make sure you have at least two files if you store them as .pdfs, .docxs or .txts.
+		</p>
+		<p>
+			Do not try to access a result page again.
+		</p>
+	</div>
+{% endblock %}
