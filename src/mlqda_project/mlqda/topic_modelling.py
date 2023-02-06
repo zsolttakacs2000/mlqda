@@ -189,7 +189,7 @@ class TopicModelling:
         Creating threads for each possible model and start them at the same time.
         When all of them have finished, save the one with the highest coherence score.
         """
-        if len(self.datafiles) < 3:
+        if len(self.datafiles) < 4:
             topic_number = 5
         elif len(self.datafiles) < 12:
             topic_number = len(self.datafiles)+1
@@ -253,14 +253,13 @@ class TopicModelling:
         """
 
         highlight_paths = []
-        words = []
-        for topic, contrib_list in self.result_dict.items():
-            words.append([contribution_tuple[1] for contribution_tuple in contrib_list])
+        topics = list(self.result_dict.values())
 
         double_esc = NoEscape("\\")+NoEscape("\\")
-        for topic in words:
+        for contrib_list in topics:
+            word_list = []
             col_id = str(self.collector_id)
-            topic_index = str(words.index(topic)+1)
+            topic_index = str(topics.index(contrib_list)+1)
             doc_name = str(col_id+"_topic"+topic_index+str('_highlights'))
             path = os.path.join(settings.MEDIA_DIR, doc_name)
             highlight_paths.append(path)
@@ -276,11 +275,13 @@ class TopicModelling:
             doc.append(LargeText(bold("Topic modelling reuslts")))
 
             with doc.create(
-                    Section('Most important words for topic ' + str(words.index(topic)+1))
+                    Section('Most important words for topic ' + str(topic_index))
                     ):
                 with doc.create(Itemize()) as itemize:
-                    for word in topic:
-                        itemize.add_item(word)
+                    for contirb_tuple in contrib_list:
+                        current_item = str(contirb_tuple[1]) + "--" + str(contirb_tuple[0])
+                        word_list.append(str(contirb_tuple[1]))
+                        itemize.add_item(current_item)
                     doc.append("\n\n\n")
                     text = "Sentences that contain any of these words are highlighted below."
                     doc.append(text)
@@ -316,11 +317,11 @@ class TopicModelling:
                     for sentence in sentences:
                         row = []
 
-                        present = [word for word in topic if word in sentence]
+                        present = [word for word in word_list if word in sentence]
                         present_words = ", ".join(present)
                         row.append(present_words)
 
-                        if any(word in str(sentence) for word in topic):
+                        if any(word in str(sentence) for word in word_list):
                             unaccented_string = unidecode.unidecode(str(sentence))
                             highlight = Command("hl", arguments=unaccented_string).dumps()
                             row.append(NoEscape(highlight+double_esc))

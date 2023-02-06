@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+{% extends 'mlqda/base.html' %}
+{% load static %}
+
+{% block title_block%}
+	Guides
+{% endblock %}
+
+{% block body_block %}
+	<div class="flex-container" id="maintext">
+		<h1>Guides</h1>
+		<p>
+			You can find out more about the proposed steps for using the system on this page.
+			Following these steps helps you to lower the chances of encountering an error.
+		</p>
+		<p>
+			For more information, please check out the FAQ and About pages below.
+		</p>
+		
+		<div class="bttn_grp">
+			<button class="general_button" onclick="window.location.href='{% url 'mlqda:faq' %}'" data-inline="true"> 
+				FAQ
+			</button>		
+			<button class="general_button" onclick="window.location.href='{% url 'mlqda:about' %}'" data-inline="true"> 
+				About
+			</button>
+		</div>
+
+
+		<h2>Step 1 - Prepare your files</h2>
+			<p> 
+				Please follow the guidelines for preparing your files.
+				It is crucial that you appropriately edit your files before uploading.
+				Otherwise, the system can return faulty results.
+				You should only include texts that you want the analyse.
+			</p>
+			<p>
+				Make sure you use the correct file extensions when using the site.
+				Currently, the system accepts files with .txt, .pdf, .docx, .csv and .xlsx extensions.
+				Remember that for topic modelling, if you ise.docx, .txt and .pdf files,
+				you must upload two or more documents.
+			</p>
+		
+		<h2>Step 2 - Select the analyser</h2>
+			<p>
+				You can select from two analysers currently.
+				Using the sentiment analyser returns a sentiment score for each of your sentences
+				or entries from your files.
+				The system also aggregates these scores for a more generalised understanding.
+			</p>
+			<p> 
+				You can also choose to analyse your qualitative data with topic modelling.
+				This method allows you to explore underlying topics in your input.
+				The system provides you with a variety of results in this case.
+			</p>
+		
+		<h2>Step 3 - Run the analysis</h2>
+			<p>
+				Using the upload button, select the files you wish to analyse.
+				Remember that for topic modelling if you use .docx, .txt and .pdf files,
+				you must upload two or more documents
+				as the script requires multiple to identify phrases appearing across your data set. 
+			</p>
+			<p>
+				Clicking 'Get Results' will redirect you to the results section.
+				This process might take a few minutes as the system tries to optimise
+				some aspects to provide better results.
+			</p>
+		
+		<h2>Step 4.1 - Check the results. (Sentiment Analysis)</h2>
+			<p>
+				In the case of sentiment analysis, your results are compiled into one PDF file.
+				Sentiment scores are shown next to every sentence or entry.
+				The system also aggregates these scores to provide an overview for you.
+			</p>
+		<h2>Step 4.2 - Check the results. (Topic Modelling) </h2>
+			<p>
+				If you choose a Topic Modelling analysis,
+				the system compiles your results into a ZIP folder.
+				Within this folder, you can find a .json file representing the
+				most important words for each topic the system identified.
+				These word and contribution pairs are also displayed on the result page.
+				Furthermore, the system creates a plot to visually represent each word's contribution
+				to each topic.
+				Finally, for each identified topic, the system compiles a PDF file to highlight
+				the sentences containing at least one related word.
+				It is important to note that the topics are not named,
+				so you need to manually deduct the meaning of each topic based
+				on the most important words.
+			</p>
+		
+		<h2>Step 5 - Download and delete the results</h2>
+			<p>
+				From the result page, you can download your results for later analysis.
+				The system automatically deletes every file and reference to
+				the input files for data protection.
+				The only file that is kept on the server is the exact file available for download.
+				However, you need to delete this file using the delete button manually.
+				If you fail to do so, the system will automatically delete these after every hour.
+			</p>
+	</div>
+{% endblock %}

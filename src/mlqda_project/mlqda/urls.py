@@ -24,5 +24,6 @@ urlpatterns = [
          views.download_files,
          name='download-files'),
     path('delete-files/<delete_id>', views.delete_container, name='delete-files'),
+    path('guides/', views.guides, name='guides'),
 
 ]

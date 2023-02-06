@@ -13,8 +13,8 @@ from zipfile import ZipFile
 from mlqda.topic_modelling import TopicModelling
 from mlqda.sentiment_analyser import SentimentAnalyser
 from mlqda.models import FileCollector, FileContainer
-#from mlqda.utils import read_txt, read_docx, read_pdf, read_csv, read_xlsx, get_datafiles, get_test_files
 from mlqda import utils
+
 
 class ViewTests(TestCase):
     """

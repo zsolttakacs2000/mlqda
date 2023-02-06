@@ -70,17 +70,13 @@ class SentimentAnalyser:
 
         with doc.create(Section('Sentiment Analysis')):
             sentiment_description = """
-                Sentiment scores can be found on the left-hand side of the table.
-            These scores are called 'compound sentiment scores' as
-            they are calculated from negative, neutral and positive
-            sentiment scores. The displayed scores range from -1 to 1,
-            so in essence you can interpret them as percentages.
-            For example a score of +0.25 could be interpreted as 25% positive.
-            When compiling the document, the system calculates the sentiment score
-            for every sentence. These sentence-sentiment scores are then aggregated
-            into a document and a corpora wide sentiment score. This way,
-            you end up with an average sentiment score for each of your uploaded
-            document and with one average sentiment score for all of your documents."""
+            The sentiment scores are present on the left-hand side of the table.
+            The analyser uses compound sentiment scores calculated from positive,
+            negative and neutral sentiment scores. The displayed scores range from -1 to 1,
+            which you can interpret as percentages. For example, you can interpret a score
+            of +0.25 as 25% positive sentiment. When compiling the document, the system calculates
+            the sentiment score for every sentence.
+            """
             doc.append(sentiment_description.replace('\n', ' '))
 
         for file in self.datafiles:
