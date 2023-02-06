@@ -188,3 +188,11 @@ def delete_container(request, delete_id):
     collector.delete()
 
     return redirect(reverse('mlqda:index'))
+
+
+def error_view(request):
+    return render(request, 'mlqda/error.html', context={})
+
+
+def guides(request):
+    return render(request, "mlqda/guides.html", context={})

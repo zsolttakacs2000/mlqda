@@ -13,7 +13,7 @@ from zipfile import ZipFile
 from mlqda.topic_modelling import TopicModelling
 from mlqda.sentiment_analyser import SentimentAnalyser
 from mlqda.models import FileCollector, FileContainer
-from mlqda.utils import read_txt, read_docx, read_pdf, get_datafiles, get_test_files
+from mlqda import utils
 
 
 class ViewTests(TestCase):
@@ -149,7 +149,7 @@ class TopicModellingTests(TestCase):
         return test_zip_path
 
     def test_constructor(self):
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
         test_tm = TopicModelling(test_files, 1)
 
         self.assertTrue('overtakes' in test_tm.datafiles[1])
@@ -157,7 +157,7 @@ class TopicModellingTests(TestCase):
         self.assertTrue('marketing' in test_tm.datafiles[1])
 
     def test_preprocess(self):
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
         test_tm = TopicModelling(test_files, 1)
         test_tm.process_files()
 
@@ -169,7 +169,7 @@ class TopicModellingTests(TestCase):
         self.assertFalse('the' in test_tm.processed_files[1])
 
     def test_creating_helper_datastructures(self):
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
         test_tm = TopicModelling(test_files, 1)
         test_tm.process_files()
         test_tm.create_helper_datastructures()
@@ -180,7 +180,7 @@ class TopicModellingTests(TestCase):
         self.assertEqual(len(test_tm.structures['corpus']), len(test_files))
 
     def test_tf_idf_removal(self):
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
         test_tm = TopicModelling(test_files, 1)
         test_tm.process_files()
         test_tm.create_helper_datastructures()
@@ -195,7 +195,7 @@ class TopicModellingTests(TestCase):
         self.assertNotEqual(old_corpus_lengths, new_corpus_lengths)
 
     def test_run_lda(self):
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
         test_tm = TopicModelling(test_files, 1)
         test_tm.process_files()
         test_tm.create_helper_datastructures()
@@ -205,7 +205,7 @@ class TopicModellingTests(TestCase):
         self.assertEqual(len(test_model.get_topics()), 3)
 
     def test_dynamic_lda(self):
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
         test_tm = TopicModelling(test_files, 1)
         test_tm.process_files()
         test_tm.create_helper_datastructures()
@@ -215,7 +215,7 @@ class TopicModellingTests(TestCase):
         self.assertEqual(len(test_tm.lda_model.get_topics()), 4)
 
     def test_compile_results(self):
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
 
         collector = FileCollector(first_name="test_files.txt")
         collector.save()
@@ -241,7 +241,7 @@ class TopicModellingTests(TestCase):
         os.remove(test_zip_path)
 
     def test_create_highlights(self):
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
 
         collector = FileCollector(first_name="test_files.txt")
         collector.save()
@@ -261,7 +261,7 @@ class TopicModellingTests(TestCase):
         os.remove(test_zip_path)
 
     def test_visualisations(self):
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
 
         collector = FileCollector(first_name="test_files.txt")
         collector.save()
@@ -289,7 +289,7 @@ class TopicModellingTests(TestCase):
 class SentimentAnalysisTests(TestCase):
 
     def test_constructor(self):
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
         test_sa = SentimentAnalyser(test_files, 2)
 
         self.assertTrue('overtakes' in test_sa.datafiles[1])
@@ -299,7 +299,7 @@ class SentimentAnalysisTests(TestCase):
     def test_create_file_models(self):
         test_file_collector = FileCollector(2, "test")
         test_file_collector.save()
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
         test_sa = SentimentAnalyser(test_files, int(test_file_collector.collector_id))
 
         for path in test_files:
@@ -312,7 +312,7 @@ class SentimentAnalysisTests(TestCase):
     def test_run_sentiment_analyser(self):
         test_file_collector = FileCollector(2, "test")
         test_file_collector.save()
-        test_files = get_test_files()
+        test_files = utils.get_test_files()
         test_sa = SentimentAnalyser(test_files, int(test_file_collector.collector_id))
 
         test_result_path = test_sa.run_sentiment_analyser()
@@ -325,7 +325,7 @@ class UtilsTests(TestCase):
     def test_read_txt(self):
         test_folder = os.path.relpath(settings.TEST_DIR, start=os.curdir)
         test_path = os.path.join(test_folder, "bbc1.txt")
-        test_content = read_txt(test_path)
+        test_content = utils.read_txt(test_path)
         expected = """The SNP said Ms Braverman's "incendiary language makes a mockery of"""
 
         self.assertTrue(expected in test_content)
@@ -333,7 +333,7 @@ class UtilsTests(TestCase):
     def test_read_pdf(self):
         test_folder = os.path.relpath(settings.TEST_DIR, start=os.curdir)
         test_path = os.path.join(test_folder, "bbc1.pdf")
-        test_content = read_pdf(test_path)
+        test_content = utils.read_pdf(test_path)
         expected = """The SNP said Ms Braverman's "incendiary language makes a mockery of"""
 
         self.assertTrue(expected in test_content)
@@ -341,18 +341,32 @@ class UtilsTests(TestCase):
     def test_read_docs(self):
         test_folder = os.path.relpath(settings.TEST_DIR, start=os.curdir)
         test_path = os.path.join(test_folder, "bbc1.docx")
-        test_content = read_docx(test_path)
+        test_content = utils.read_docx(test_path)
         expected = """The SNP said Ms Braverman's "incendiary language makes a mockery of"""
 
         self.assertTrue(expected in test_content)
 
-    def test_get_datafiles(self):
-        test_file_list = get_test_files("")
-        corpus = get_datafiles(test_file_list)
+    def test_read_csv(self):
+        test_folder = os.path.relpath(settings.TEST_DIR, start=os.curdir)
+        test_path = os.path.join(test_folder, "bbc1.csv")
+        test_content = utils.read_csv(test_path)
+        expected = """The SNP said Ms Braverman's "incendiary language makes a mockery of"""
+        self.assertTrue(expected in test_content)
 
-        self.assertEqual(len(corpus), 7)
+    def test_read_xlsx(self):
+        test_folder = os.path.relpath(settings.TEST_DIR, start=os.curdir)
+        test_path = os.path.join(test_folder, "bbc1.xlsx")
+        test_content = utils.read_xlsx(test_path)
+        expected = """The SNP said Ms Braverman's "incendiary language makes a mockery of"""
+        self.assertTrue(expected in test_content)
+
+    def test_get_datafiles(self):
+        test_file_list = utils.get_test_files("")
+        corpus = utils.get_datafiles(test_file_list)
+
+        self.assertEqual(len(corpus), 9)
 
     def test_get_test_files(self):
-        test_file_list = get_test_files()
+        test_file_list = utils.get_test_files()
 
         self.assertEqual(len(test_file_list), 5)

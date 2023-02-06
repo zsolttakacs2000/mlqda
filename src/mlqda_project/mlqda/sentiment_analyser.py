@@ -10,6 +10,7 @@ from mlqda.utils import get_datafiles
 from pylatex import Document, Section, Package, Command, LargeText, NoEscape
 from pylatex.base_classes import Arguments
 from pylatex.utils import bold
+import re
 import unidecode
 import subprocess
 from distutils.spawn import find_executable
@@ -69,17 +70,13 @@ class SentimentAnalyser:
 
         with doc.create(Section('Sentiment Analysis')):
             sentiment_description = """
-                Sentiment scores can be found on the left-hand side of the table.
-            These scores are called 'compound sentiment scores' as
-            they are calculated from negative, neutral and positive
-            sentiment scores. The displayed scores range from -1 to 1,
-            so in essence you can interpret them as percentages.
-            For example a score of +0.25 could be interpreted as 25% positive.
-            When compiling the document, the system calculates the sentiment score
-            for every sentence. These sentence-sentiment scores are then aggregated
-            into a document and a corpora wide sentiment score. This way,
-            you end up with an average sentiment score for each of your uploaded
-            document and with one average sentiment score for all of your documents."""
+            The sentiment scores are present on the left-hand side of the table.
+            The analyser uses compound sentiment scores calculated from positive,
+            negative and neutral sentiment scores. The displayed scores range from -1 to 1,
+            which you can interpret as percentages. For example, you can interpret a score
+            of +0.25 as 25% positive sentiment. When compiling the document, the system calculates
+            the sentiment score for every sentence.
+            """
             doc.append(sentiment_description.replace('\n', ' '))
 
         for file in self.datafiles:
@@ -104,13 +101,17 @@ class SentimentAnalyser:
                 doc.append(Command("multicolumn", arguments=last_footer_args))
                 doc.append(Command("endlastfoot"))
 
-                sentences = file.split(". ")
+                if self.datafile_paths[0].endswith((".xlsx", '.csv')):
+                    sentences = file.split('MLQDAdataBreak')
+                else:
+                    sentences = file.split(". ")
 
                 sum_sentence_sentiment = 0
                 for sentence in sentences:
+                    tag_removed_text = re.sub(r'@\w+', '', sentence)
                     row = []
                     sentiment_analyser = SentimentIntensityAnalyzer()
-                    sentiment_scores = sentiment_analyser.polarity_scores(str(sentence))
+                    sentiment_scores = sentiment_analyser.polarity_scores(str(tag_removed_text))
                     compound_score = sentiment_scores['compound']
                     sum_sentence_sentiment += compound_score
                     row.append(str(compound_score))
@@ -118,7 +119,7 @@ class SentimentAnalyser:
                     unaccented_string = unidecode.unidecode(str(sentence))
                     row.append(str(unaccented_string)+double_esc)
 
-                    doc.append(NoEscape("&".join(row)))
+                    doc.append(NoEscape(" & ".join(row)))
                     doc.append(Command("hline"))
 
                 doc.append(Command("end", arguments=Arguments('tabularx')))
@@ -143,6 +144,10 @@ class SentimentAnalyser:
         command = " && ".join([switch_cwd, compile_command])
         proc = subprocess.Popen(command, shell=True)
         proc.wait()
+
+        proc = subprocess.Popen(command, shell=True)
+        proc.wait()
+
         [os.remove(path+ext) for ext in ['.log', '.tex', '.aux']]
 
         result_location = doc_name+'.pdf'
