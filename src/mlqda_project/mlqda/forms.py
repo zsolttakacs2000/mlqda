@@ -10,7 +10,10 @@ class FileForm(forms.Form):
     """
     Form class to enable the upload of multiple files
     """
-    file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    file = forms.FileField(widget=forms.ClearableFileInput(attrs={
+        'multiple': True,
+        'accept': '.pdf,.docx,.txt,.csv,.xlsx'
+        }))
 
     class Meta:
         model = FileContainer

@@ -2,6 +2,8 @@ import PyPDF2
 import docx
 import os
 import time
+import pandas as pd
+import re
 
 from django.conf import settings
 
@@ -49,6 +51,41 @@ def read_docx(file_path):
     return text
 
 
+def remove_nonlatex_chars(document_text):
+    """
+    utility function to remove characters that are not supported by latex
+    """
+    text = re.sub('&amp;', ' and ', document_text)
+    text = re.sub(r'&[a-zA-Z]+;', "", text)
+    text = re.sub('#', r'\#', text)
+    text = re.sub('_', '', text)
+    text = re.sub('^', '', text)
+    text = re.sub('{', '', text)
+    text = re.sub('}', '', text)
+
+    return text
+
+
+def read_csv(file_path):
+    """
+    utility function to read in a .csv file and return the contents of the file
+    """
+    my_csv = pd.read_csv(file_path, header=None)
+    document_text = ' MLQDAdataBreak '.join(my_csv.iloc[:, 0])
+    text = remove_nonlatex_chars(document_text)
+    return text
+
+
+def read_xlsx(file_path):
+    """
+    utility function to read in a .xlsx file and return the contents of the file
+    """
+    data = pd.read_excel(file_path, header=None)
+    document_text = ' MLQDAdataBreak '.join(data.iloc[:, 0])
+    text = remove_nonlatex_chars(document_text)
+    return text
+
+
 def get_datafiles(path_list):
     """
     utility function to read in a list of files and return all their content
@@ -61,6 +98,10 @@ def get_datafiles(path_list):
             text = read_pdf(file_path)
         elif file_path.endswith(".docx"):
             text = read_docx(file_path)
+        elif file_path.endswith(".csv"):
+            text = read_csv(file_path)
+        elif file_path.endswith(".xlsx"):
+            text = read_xlsx(file_path)
 
         full_text.append(text)
 
@@ -87,6 +128,8 @@ def get_test_files(extension=".txt"):
 def delete_all_uploaded_files():
     """
     Utility function to gather all files and delete them if they are older than 10 minutes.
+    First deletes files connected to models then all unrelated files too.
+    Unrelated files stay there, if there was an error during analysis.
     """
     collectors = FileCollector.objects.all()
     print("deleted files:")
@@ -104,3 +147,12 @@ def delete_all_uploaded_files():
                     os.remove(str(file.file))
                     file.delete()
                     collector.delete()
+
+        every_file = os.listdir()
+        for file in every_file:
+            creation = os.path.getmtime(file)
+            current = time.time()
+            age = (current - creation)/60
+            if age > 20:
+                print(str(file))
+                os.remove(file)
