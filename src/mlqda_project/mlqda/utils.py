@@ -147,12 +147,12 @@ def delete_all_uploaded_files():
                     os.remove(str(file.file))
                     file.delete()
                     collector.delete()
-        
+
         every_file = os.listdir()
         for file in every_file:
             creation = os.path.getmtime(file)
             current = time.time()
             age = (current - creation)/60
             if age > 20:
-                    print(str(file))
-                    os.remove(file)
+                print(str(file))
+                os.remove(file)
