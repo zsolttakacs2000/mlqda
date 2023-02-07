@@ -28,9 +28,9 @@ TEST_DIR = os.path.join(BASE_DIR, 'mlqda/test_files/')
 SECRET_KEY = 'django-insecure-62#ktc9u+j3%eb)l4o@lqz)fwdy6ijf$(9s)90z+se-320ocyi'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['zsolttakacs2000.pythonanywhere.com']
 
 
 # Application definition
