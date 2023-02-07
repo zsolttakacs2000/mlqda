@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+{% extends 'mlqda/base.html' %}
+{% load static %}
+
+{% block title_block%}
+	About
+{% endblock %}
+
+{% block body_block %}
+	<div class="flex-container" id="maintext">
+		<h1>General information</h1>
+			<p>
+				This app is a container for a code to enable people to evaluate their qualitative data.
+				Within the scope of this app, we used LDA topic modelling to identify topics
+				in qualitative data similar to a thematic analysis. Furthermore, we utilised sentiment
+				analysis to provide extra insight into the data.
+			</p>
+			<p>
+				We aimed to develop an app that would confirm a researcher's ideas about their
+				dataset in a way that would be slightly more independent and reproducible.
+			</p>
+			<p>
+				If you wish to read more about using machine learning algorithms to analyse
+				qualitative data or research papers that have already used similar techniques,
+				you can read the following resources.
+			</p>
+		
+		<h2>How does the underlying LDA script work?</h2>
+			<h3>Pre-processing</h3>
+			<p>
+				First, your text will be processed and transformed into a format used
+				in a machine learning algorithm. The process starts by separating your text
+				into single words. Then they will be lemmatised to allow us to identify words
+				in different grammatical forms as the same. The final step of processing is
+				to remove all stopwords. Stopwords are part of a language that do not carry any
+				meaning of content. Their primary function is to make sentences grammatically correct.
+				As our model focuses on content, we can safely remove these words.
+			</p>
+			<h3>N-grams</h3>
+			<p>
+				N-grams represent word combinations to the degree of N. Our current implementation
+				uses bi-grams containing the combinations of two words.
+			</p>
+			<h3>id2word and bow</h3>
+			<p>
+				id2word objects are in essential dictionaries to map a unique id to a word.
+				bow-s (Bag-of-Words) are the grouped version of this dictionary where the code
+				groups the objects based on their origin document.
+			</p>
+			<h3>LDA models</h3>
+			<p>
+				Using the previous data structures, the LDA model randomly allocates word combinations
+				to a <strong>pre-set number of topics</strong> throughout a
+				<strong>pre-set number of iterations</strong>. The model returns the top 10 words
+				connected to the proposed underlying themes. The themes are unnamed; hence they
+				need human deduction to infer a name for the theme.
+			</p>
+			<h3>Result files</h3>
+			<p>
+				Using the results from the LDA model, the system will compile multiple files
+				to help you understand them. Firstly the returned themes are written to an easily
+				accessible txt file. Then the sentences in your original files are highlighted based
+				on which of the themes appear in them. This feature can help you with your coding in a
+				thematic analysis. Finally, the script plots the top words' contribution to display their
+				values better.
+			</p>
+		
+		<h2>How does the Sentiment Analyser work?</h2>
+			<h3>Splitting the sentences</h3>
+			<p>
+				The site organises and analyses your uploaded files in separate paragraphs.
+				The analyser calculates a score for each of your sentences.
+				These scores are also aggregated over every document and the overall corpus.
+			</p>
+			<h3>Understanding the sentiments</h3>
+			<p>
+				The analyser uses compound sentiment scores calculated from positive,
+				negative and neutral sentiment scores. You can think about this compound score
+				as a two-way 100% scale. For example, you can translate a score of 0.35 to an overall
+				35% positive sentence. Similarly, you can convert a sentence with a score of -0.19
+				as -19% sentiment.
+			</p>
+			<h3>Training dataset</h3>
+			<p>
+				Sentiment Analysis largely depends on its training set.
+				The site currently uses the built-in VADER sentiment analyser from the
+				NLTK python library. The current implementation was trained on Twitter posts,
+				so it gives the best results on similar types of data. However,
+				breaking the document down into sentences brings it closer to those texts.
+				In the resources section, you can find more information about the general
+				validity of these sentiment results.
+			</p>
+
+		<h2>Resources</h2>
+		<ul>
+			<li>
+				<a href="https://www.linkedin.com/pulse/nlp-a-complete-guide-topic-modeling-latent-dirichlet-sahil-m">
+					https://www.linkedin.com/pulse/nlp-a-complete-guide-topic-modeling-latent-dirichlet-sahil-m
+				</a>
+			</li>
+			<li>
+				<a href="https://realpython.com/python-nltk-sentiment-analysis/">
+					https://realpython.com/python-nltk-sentiment-analysis/
+				</a>
+			</li>
+			<li> Crowston, K., Allen, E. E., & Heckman, R. (2012).
+			Using natural language processing technology for qualitative data analysis.
+			International Journal of Social Research Methodology, 15(6), 523-543 </li>
+			<li> Parks, L., & Peters, W. (2022).
+			Natural Language Processing in Mixed-methods Text Analysis:
+			A Workflow Approach. International Journal of Social Research Methodology, 1-13. </li>
+			<li> Ruelens, A. (2022).
+			Analyzing user-generated content using natural language processing:
+			a case study of public satisfaction with healthcare systems.
+			Journal of Computational Social Science, 5(1), 731-749. </li>
+			<li> Nti, I. K., Quarcoo, J. A., Aning, J., & Fosu, G. K. (2022).
+			A mini-review of machine learning in big data analytics:
+			Applications, challenges, and prospects.
+			Big Data Mining and Analytics, 5(2), 81-97. </li>
+		</ul>
+	</div>
+{% endblock %}

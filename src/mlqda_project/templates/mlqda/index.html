@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+{% extends 'mlqda/base.html' %}
+{% load static %}
+
+{% block title_block%}
+	Home
+{% endblock %}
+
+{% block body_block %}
+	<div class="flex-container" id="maintext">
+		<h1>Welcome!</h1>
+		<h3>Welcome to the Machine Learning Qualitative Data Analyzer.</h3>
+		
+		<p> 
+			Use this tool to confirm your qualitative data analysis
+			or as a starting point to identify the themes you could uncover.
+		</p>
+		<p>
+			The current implementation allows you to explore underlying
+			topics and themes in your qualitative data sets using the Topic Modelling section.
+			You can also examine the sentiments of your data set using the Sentiment Analyser section.
+		</p>
+		<p>
+			Please be careful when you upload your text files to conform to expected constraints.
+		</p>
+	</div>
+{% endblock %}

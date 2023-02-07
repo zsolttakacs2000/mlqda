@@ -1,0 +1,232 @@
+body {
+	background-color: lightblue;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.flex-container {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 85%;
+  align-self: center;
+  background-color: #FFF;
+  gap: 0;
+
+}
+
+.topic_results {
+  background-color: #FFF;
+  margin: auto;
+  vertical-align: middle;
+  text-align: center;
+  width: 90%;
+}
+
+.topic_results>h1 {
+  background-color: #FFF;
+  margin: auto;
+  vertical-align: middle;
+}
+
+.topic_results>h2 {
+  background-color: #FFF;
+  margin: auto;
+  vertical-align: middle;
+}
+
+.topic_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    place-self: center;
+    background-color: white;
+    width: 85%;
+    margin: auto;
+    padding-top: 2.5%;
+    padding-bottom: 2.5%;
+    grid-gap: 1%;
+  }
+
+
+
+.topic_grid > p {
+  background-color: rgb(173, 216, 230);
+  width: 100%;
+  margin: 0px;
+  padding-bottom: 0%;
+  padding-top: 0%;
+  text-align: center;
+  font-size: 125%;
+  border-color: #FFF;
+  border-style: solid;
+  border-radius: 5px;
+}
+
+.flex-container > h1 {
+  width: 100%;
+  text-align: center;
+}
+
+.flex-container > h2 {
+  width: 100%;
+  text-align: left;
+}
+
+.flex-container > h3 {
+  width: 100%;
+  text-align: left;
+}
+
+.flex-container > ul {
+  width: 100%;
+  text-align: left;
+}
+
+.flex-container > ul > li {
+  width: 100%;
+  text-align: left;
+}
+
+.flex-container > p {
+  width: 100%;
+  text-align: left;
+}
+
+
+.navbar {
+  background-color: #FFF;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 50px;
+}
+
+.navbar > a {
+  float: right;
+  color: #000;
+  text-align: center;
+  padding: 15px 15px;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.navbar > :first-child {
+  margin-right: 3%;
+}
+
+.navbar > :last-child {
+  margin-left: 3%;
+}
+
+.navbar > img {
+  float: left;
+  padding-left: 0;
+  height: 30px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.navbar > a:hover {
+  background-color: rgb(0, 59, 111);
+  color: #FFF;
+}
+
+#maintext {
+  color: #000;
+  text-align: left;
+  font-size: 25px;
+  margin-top: 10%;
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-bottom: 1%;
+  padding-right: 2.5%;
+  padding-left: 2.5%;
+}
+
+#maintext > h2 {
+  margin-bottom: 0;
+}
+
+#maintext > p {
+  margin-top: 0;
+}
+
+#maintext > ul {
+  margin-top: 0;
+}
+
+#maintext > ul > li {
+  width: 80%;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.file_upload {
+  text-align: right;
+  margin-right: 5%;
+}
+
+.file_upload form {
+  color: #FFF;
+  padding-top: 2.5%;
+}
+
+.general_button {
+  display: inline-block;
+  background-color: #FFF;
+  padding: 1em;
+  width: max-content;
+  height: min-content;
+  border-radius: 30px;
+  border-color: rgb(0, 59, 111);
+  margin-right: 7%;
+  border-style: solid;
+  margin: 0 auto;
+  display: inline;
+}
+
+.delete_button {
+  display: inline-block;
+  background-color: #FFF;
+  padding: 1em;
+  width: max-content;
+  height: min-content;
+  border-radius: 30px;
+  border-color: red;
+  margin-right: 7%;
+  border-style: solid;
+  color: #000;
+  margin: 0 auto;
+  display: inline;
+}
+
+.general_button:hover{
+  background-color: rgb(0, 59, 111);
+  border-color: #FFF;
+  color: #FFF;
+}
+
+.delete_button:hover{
+  background-color: rgb(255, 0, 0);
+  border-color: #FFF;
+  color: #FFF;
+}
+
+.general_button:hover p{
+  color: #FFF;
+	font: bold;
+}
+
+.delete_button:hover p{
+  color: #FFF;
+	font: bold;
+}
+
+.buttons {
+  width: 200px;
+  margin: 0 auto;
+  display: inline;}
+  
