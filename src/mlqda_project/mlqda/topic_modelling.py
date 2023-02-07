@@ -211,7 +211,7 @@ class TopicModelling:
         for current_model in self.models:
             current_coherence = CoherenceModel(model=current_model,
                                                texts=self.structures['trigram_texts'],
-                                               coherence='c_v')
+                                               coherence='u_mass')
             coherence_scores.append(current_coherence.get_coherence())
 
         max_coherence = max(coherence_scores)
