@@ -160,7 +160,9 @@ def sentiment_results(request, collector_id):
         datafiles_paths.append(path)
 
     sa = SentimentAnalyser(datafiles_paths, collector_id)
-    result = sa.run_sentiment_analyser()
+    sa.create_pdf_results()
+    sa.create_csv_results()
+    result = sa.compile_results()
 
     context_dict['result_path'] = result
     context_dict['collector_id'] = collector_id

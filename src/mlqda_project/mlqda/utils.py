@@ -157,3 +157,9 @@ def delete_all_uploaded_files():
         if age > 20 and os.path.exists(file_path):
             print(str(file_path))
             os.remove(file_path)
+
+
+def get_test_zip_path(test_object):
+    test_zip_path = os.path.join(os.path.relpath(settings.MEDIA_DIR, start=os.curdir),
+                                 test_object.zip_name)
+    return test_zip_path
