@@ -13,6 +13,8 @@ from pylatex.utils import bold
 import re
 import unidecode
 import subprocess
+import csv
+from zipfile import ZipFile
 from distutils.spawn import find_executable
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
@@ -46,7 +48,7 @@ class SentimentAnalyser:
             if "test" not in str(file):
                 os.remove(file)
 
-    def run_sentiment_analyser(self):
+    def create_pdf_results(self):
         """
         Function to compile result pdf. Adds explanatory paragraphs.
         Sentiment scores calculated on a per sentence basis.
@@ -101,7 +103,10 @@ class SentimentAnalyser:
                 doc.append(Command("multicolumn", arguments=last_footer_args))
                 doc.append(Command("endlastfoot"))
 
-                if self.datafile_paths[0].endswith((".xlsx", '.csv')):
+                file_path = self.datafile_paths[self.datafiles.index(file)]
+                file_name = os.path.basename(file_path)
+
+                if file_name.endswith((".xlsx", '.csv')):
                     sentences = file.split('MLQDAdataBreak')
                 else:
                     sentences = file.split(". ")
@@ -150,7 +155,53 @@ class SentimentAnalyser:
 
         [os.remove(path+ext) for ext in ['.log', '.tex', '.aux']]
 
-        result_location = doc_name+'.pdf'
+        result_location = str(path)+'.pdf'
         self.create_model(result_location)
+        self.pdf_result = result_location
+
+    def create_csv_results(self):
+        fields = ['File Name', 'Entry', 'Sentiment Score']
+        rows = []
+        for file in self.datafiles:
+            file_path = self.datafile_paths[self.datafiles.index(file)]
+            file_name = os.path.basename(file_path)
+
+            if file_name.endswith((".xlsx", '.csv')):
+                sentences = file.split('MLQDAdataBreak')
+            else:
+                sentences = file.split(". ")
+
+            for sentence in sentences:
+                tag_removed_text = re.sub(r'@\w+', '', sentence)
+                sentiment_analyser = SentimentIntensityAnalyzer()
+                sentiment_scores = sentiment_analyser.polarity_scores(str(tag_removed_text))
+                compound_score = sentiment_scores['compound']
+                row = {"File Name": file_name,
+                       "Entry": unidecode.unidecode(str(sentence)),
+                       "Sentiment Score": compound_score}
+                rows.append(row)
+
+        col_id = str(self.collector_id)
+        path = os.path.join(settings.MEDIA_DIR, str(col_id + "_" + "results.csv"))
+        with open(path, "w", newline='') as results:
+            writer = csv.DictWriter(results, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        self.create_model(path)
+        self.csv_result = path
+
+    def compile_results(self):
+        self.zip_name = str(str(self.collector_id)+str('_results.zip'))
+        zip_path = os.path.join(settings.MEDIA_DIR, self.zip_name)
+
+        with ZipFile(zip_path, 'w') as zip_results:
+            zip_results.write(self.pdf_result, str(os.path.basename(str(self.pdf_result))))
+            zip_results.write(self.csv_result, str(os.path.basename(str(self.csv_result))))
+            os.remove(self.pdf_result)
+            os.remove(self.csv_result)
+
         self.remove_input_files()
-        return result_location
+        self.create_model(zip_path)
+
+        return self.zip_name
