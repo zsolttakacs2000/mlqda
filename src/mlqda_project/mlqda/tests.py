@@ -143,11 +143,6 @@ class TopicModellingTests(TestCase):
     Class to collect test regarding the topic modelling script
     """
 
-    def get_test_zip_path(self, test_tm_object):
-        test_zip_path = os.path.join(os.path.relpath(settings.MEDIA_DIR, start=os.curdir),
-                                     test_tm_object.zip_name)
-        return test_zip_path
-
     def test_constructor(self):
         test_files = utils.get_test_files()
         test_tm = TopicModelling(test_files, 1)
@@ -230,7 +225,7 @@ class TopicModellingTests(TestCase):
         test_tm.dynamic_lda()
         test_tm.compile_results()
 
-        test_zip_path = self.get_test_zip_path(test_tm)
+        test_zip_path = utils.get_test_zip_path(test_tm)
 
         with ZipFile(test_zip_path, 'r') as test_zip_results:
             zip_collector_id = str(test_tm.collector_id)
@@ -257,7 +252,7 @@ class TopicModellingTests(TestCase):
         test_tm.compile_results()
 
         self.assertEqual(len(test_tm.highlight_paths), len(test_tm.lda_model.get_topics()))
-        test_zip_path = self.get_test_zip_path(test_tm)
+        test_zip_path = utils.get_test_zip_path(test_tm)
         os.remove(test_zip_path)
 
     def test_visualisations(self):
@@ -280,10 +275,30 @@ class TopicModellingTests(TestCase):
 
         self.assertTrue(os.path.exists(test_viz_path))
         self.assertTrue(os.path.exists(test_interactive_path))
-        test_zip_path = self.get_test_zip_path(test_tm)
+        test_zip_path = utils.get_test_zip_path(test_tm)
         os.remove(test_viz_path)
         os.remove(test_zip_path)
         os.remove(test_interactive_path)
+
+    def test_create_csv_results(self):
+        test_files = utils.get_test_files((".txt", ".csv"))
+
+        collector = FileCollector(first_name="test_files.txt")
+        collector.save()
+
+        for file in test_files:
+            current_file = FileContainer.objects.create(file=file, first_name=collector)
+            current_file.save()
+
+        test_tm = TopicModelling(test_files, collector.collector_id)
+        test_tm.process_files()
+        test_tm.create_helper_datastructures()
+        test_tm.tf_idf_removal()
+        test_tm.dynamic_lda()
+        test_tm.get_lda_output()
+        test_tm.create_csv_results()
+
+        self.assertTrue(os.path.exists(test_tm.csv_path))
 
 
 class SentimentAnalysisTests(TestCase):
@@ -309,16 +324,44 @@ class SentimentAnalysisTests(TestCase):
 
         self.assertEqual(len(test_objects), len(test_files))
 
-    def test_run_sentiment_analyser(self):
+    def test_create_pdf_results(self):
         test_file_collector = FileCollector(2, "test")
         test_file_collector.save()
         test_files = utils.get_test_files()
         test_sa = SentimentAnalyser(test_files, int(test_file_collector.collector_id))
 
-        test_result_path = test_sa.run_sentiment_analyser()
-        result_file = FileContainer.objects.filter(file_name=test_result_path)[0]
+        test_sa.create_pdf_results()
 
-        self.assertTrue(os.path.isfile(str(result_file.file)))
+        self.assertTrue(os.path.isfile(str(test_sa.pdf_result)))
+
+    def test_create_csv_results(self):
+        test_file_collector = FileCollector(2, "test")
+        test_file_collector.save()
+        test_files = utils.get_test_files()
+        test_sa = SentimentAnalyser(test_files, int(test_file_collector.collector_id))
+
+        test_sa.create_csv_results()
+
+        self.assertTrue(os.path.isfile(str(test_sa.csv_result)))
+
+    def test_compile_results(self):
+        test_file_collector = FileCollector(2, "test")
+        test_file_collector.save()
+        test_files = utils.get_test_files(extension=(".txt", ".csv"))
+
+        test_sa = SentimentAnalyser(test_files, int(test_file_collector.collector_id))
+        test_sa.create_pdf_results()
+        test_sa.create_csv_results()
+        test_sa.compile_results()
+
+        test_zip_path = utils.get_test_zip_path(test_sa)
+
+        with ZipFile(test_zip_path, 'r') as test_zip_results:
+            number_of_files = len(test_zip_results.namelist())
+
+        self.assertTrue(os.path.isfile(test_zip_path))
+        self.assertEqual(number_of_files, 2)
+        os.remove(test_zip_path)
 
 
 class UtilsTests(TestCase):
