@@ -6,14 +6,13 @@ Inspiration of the processes and steps were taken from:
 from django.conf import settings
 import os
 from mlqda.models import FileCollector, FileContainer
-from mlqda.utils import get_datafiles
+from mlqda.utils import get_datafiles, write_sentiemnt_csv_file
 from pylatex import Document, Section, Package, Command, LargeText, NoEscape
 from pylatex.base_classes import Arguments
 from pylatex.utils import bold
 import re
 import unidecode
 import subprocess
-import csv
 from zipfile import ZipFile
 from distutils.spawn import find_executable
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -160,7 +159,6 @@ class SentimentAnalyser:
         self.pdf_result = result_location
 
     def create_csv_results(self):
-        fields = ['File Name', 'Entry', 'Sentiment Score']
         rows = []
         for file in self.datafiles:
             file_path = self.datafile_paths[self.datafiles.index(file)]
@@ -181,13 +179,7 @@ class SentimentAnalyser:
                        "Sentiment Score": compound_score}
                 rows.append(row)
 
-        col_id = str(self.collector_id)
-        path = os.path.join(settings.MEDIA_DIR, str(col_id + "_" + "results.csv"))
-        with open(path, "w", newline='') as results:
-            writer = csv.DictWriter(results, fieldnames=fields)
-            writer.writeheader()
-            writer.writerows(rows)
-
+        path = write_sentiemnt_csv_file(self.collector_id, rows)
         self.create_model(path)
         self.csv_result = path
 
