@@ -413,3 +413,20 @@ class UtilsTests(TestCase):
         test_file_list = utils.get_test_files()
 
         self.assertEqual(len(test_file_list), 5)
+
+    def test_calculate_topic_number(self):
+        less_than_four = utils.calculate_topic_number(3)
+        between_five_and_twelve = utils.calculate_topic_number(6)
+        larger_than_twelve = utils.calculate_topic_number(15)
+
+        self.assertEqual(5, less_than_four)
+        self.assertEqual(7, between_five_and_twelve)
+        self.assertEqual(12, larger_than_twelve)
+
+    def test_write_sentiemnt_csv_file(self):
+        row = {"File Name": "test file",
+               "Entry": "test sentence",
+               "Sentiment Score": 0}
+
+        path = utils.write_sentiemnt_csv_file("test", [row])
+        self.assertTrue(os.path.exists(str(path)))

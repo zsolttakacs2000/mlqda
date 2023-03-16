@@ -14,7 +14,7 @@ import json
 from django.conf import settings
 import os
 from mlqda.models import FileCollector, FileContainer
-from mlqda.utils import get_datafiles
+from mlqda.utils import get_datafiles, calculate_topic_number
 import re
 from zipfile import ZipFile
 import statistics
@@ -193,13 +193,7 @@ class TopicModelling:
         Creating threads for each possible model and start them at the same time.
         When all of them have finished, save the one with the highest coherence score.
         """
-        if len(self.datafiles) < 4:
-            topic_number = 5
-        elif len(self.datafiles) < 12:
-            topic_number = len(self.datafiles)+1
-        else:
-            topic_number = 12
-
+        topic_number = calculate_topic_number(len(self.datafiles))
         coherence_scores = []
         threads = []
 
