@@ -13,7 +13,6 @@ from pylatex.utils import bold
 import re
 import unidecode
 import subprocess
-import csv
 from zipfile import ZipFile
 from distutils.spawn import find_executable
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
