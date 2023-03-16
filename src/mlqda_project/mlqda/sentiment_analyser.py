@@ -6,13 +6,14 @@ Inspiration of the processes and steps were taken from:
 from django.conf import settings
 import os
 from mlqda.models import FileCollector, FileContainer
-from mlqda.utils import get_datafiles
+from mlqda.utils import get_datafiles, write_sentiemnt_csv_file
 from pylatex import Document, Section, Package, Command, LargeText, NoEscape
 from pylatex.base_classes import Arguments
 from pylatex.utils import bold
 import re
 import unidecode
 import subprocess
+from zipfile import ZipFile
 from distutils.spawn import find_executable
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
@@ -46,7 +47,7 @@ class SentimentAnalyser:
             if "test" not in str(file):
                 os.remove(file)
 
-    def run_sentiment_analyser(self):
+    def create_pdf_results(self):
         """
         Function to compile result pdf. Adds explanatory paragraphs.
         Sentiment scores calculated on a per sentence basis.
@@ -101,7 +102,10 @@ class SentimentAnalyser:
                 doc.append(Command("multicolumn", arguments=last_footer_args))
                 doc.append(Command("endlastfoot"))
 
-                if self.datafile_paths[0].endswith((".xlsx", '.csv')):
+                file_path = self.datafile_paths[self.datafiles.index(file)]
+                file_name = os.path.basename(file_path)
+
+                if file_name.endswith((".xlsx", '.csv')):
                     sentences = file.split('MLQDAdataBreak')
                 else:
                     sentences = file.split(". ")
@@ -150,7 +154,46 @@ class SentimentAnalyser:
 
         [os.remove(path+ext) for ext in ['.log', '.tex', '.aux']]
 
-        result_location = doc_name+'.pdf'
+        result_location = str(path)+'.pdf'
         self.create_model(result_location)
+        self.pdf_result = result_location
+
+    def create_csv_results(self):
+        rows = []
+        for file in self.datafiles:
+            file_path = self.datafile_paths[self.datafiles.index(file)]
+            file_name = os.path.basename(file_path)
+
+            if file_name.endswith((".xlsx", '.csv')):
+                sentences = file.split('MLQDAdataBreak')
+            else:
+                sentences = file.split(". ")
+
+            for sentence in sentences:
+                tag_removed_text = re.sub(r'@\w+', '', sentence)
+                sentiment_analyser = SentimentIntensityAnalyzer()
+                sentiment_scores = sentiment_analyser.polarity_scores(str(tag_removed_text))
+                compound_score = sentiment_scores['compound']
+                row = {"File Name": file_name,
+                       "Entry": unidecode.unidecode(str(sentence)),
+                       "Sentiment Score": compound_score}
+                rows.append(row)
+
+        path = write_sentiemnt_csv_file(self.collector_id, rows)
+        self.create_model(path)
+        self.csv_result = path
+
+    def compile_results(self):
+        self.zip_name = str(str(self.collector_id)+str('_results.zip'))
+        zip_path = os.path.join(settings.MEDIA_DIR, self.zip_name)
+
+        with ZipFile(zip_path, 'w') as zip_results:
+            zip_results.write(self.pdf_result, str(os.path.basename(str(self.pdf_result))))
+            zip_results.write(self.csv_result, str(os.path.basename(str(self.csv_result))))
+            os.remove(self.pdf_result)
+            os.remove(self.csv_result)
+
         self.remove_input_files()
-        return result_location
+        self.create_model(zip_path)
+
+        return self.zip_name

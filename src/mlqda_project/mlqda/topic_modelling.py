@@ -14,7 +14,7 @@ import json
 from django.conf import settings
 import os
 from mlqda.models import FileCollector, FileContainer
-from mlqda.utils import get_datafiles
+from mlqda.utils import get_datafiles, calculate_topic_number
 import re
 from zipfile import ZipFile
 import statistics
@@ -28,6 +28,7 @@ import pyLDAvis.gensim_models
 import subprocess
 from distutils.spawn import find_executable
 import threading
+import csv
 import nltk
 nltk.download('stopwords')
 
@@ -71,7 +72,10 @@ class TopicModelling:
             entries = re.sub(r'@\w+', '', current_text)
             entries = re.sub(r'http\S+', '', entries)
 
-            if self.datafile_paths[0].endswith(".xlsx") or self.datafile_paths[0].endswith('.csv'):
+            file_path = self.datafile_paths[self.datafiles.index(current_text)]
+            file_name = os.path.basename(file_path)
+
+            if file_name.endswith((".xlsx", '.csv')):
                 entries = entries.split('MLQDAdataBreak')
                 for entry in entries:
                     lemmatized_text = self.filter_and_lemmatize(entry)
@@ -189,13 +193,7 @@ class TopicModelling:
         Creating threads for each possible model and start them at the same time.
         When all of them have finished, save the one with the highest coherence score.
         """
-        if len(self.datafiles) < 4:
-            topic_number = 5
-        elif len(self.datafiles) < 12:
-            topic_number = len(self.datafiles)+1
-        else:
-            topic_number = 12
-
+        topic_number = calculate_topic_number(len(self.datafiles))
         coherence_scores = []
         threads = []
 
@@ -309,7 +307,10 @@ class TopicModelling:
                     doc.append(Command("multicolumn", arguments=last_footer_args))
                     doc.append(Command("endlastfoot"))
 
-                    if self.datafile_paths[0].endswith((".xlsx", '.csv')):
+                    file_path = self.datafile_paths[self.datafiles.index(file)]
+                    file_name = os.path.basename(file_path)
+
+                    if file_name.endswith((".xlsx", '.csv')):
                         sentences = file.split('MLQDAdataBreak')
                     else:
                         sentences = file.split(". ")
@@ -326,7 +327,7 @@ class TopicModelling:
                             highlight = Command("hl", arguments=unaccented_string).dumps()
                             row.append(NoEscape(highlight+double_esc))
                         else:
-                            row.append(str(sentence)+double_esc)
+                            row.append(str(unidecode.unidecode(str(sentence)))+double_esc)
                         doc.append(NoEscape(" & ".join(row)))
                         doc.append(Command("hline"))
 
@@ -350,6 +351,49 @@ class TopicModelling:
             [os.remove(path+ext) for ext in ['.log', '.tex', '.aux']]
 
             self.highlight_paths = highlight_paths
+
+    def create_csv_results(self):
+        fields = ['File Name', 'Entry']
+        topics = list(self.result_dict.values())
+
+        for contrib_list in topics:
+            topic_name = "Topic " + str(topics.index(contrib_list))
+            fields.append(topic_name)
+
+        rows = []
+        for file in self.datafiles:
+            file_path = self.datafile_paths[self.datafiles.index(file)]
+            file_name = os.path.basename(file_path)
+
+            if file_name.endswith((".xlsx", '.csv')):
+                sentences = file.split('MLQDAdataBreak')
+            else:
+                sentences = file.split(". ")
+
+            for sentence in sentences:
+                current_row = {'File Name': file_name,
+                               'Entry': unidecode.unidecode(str(sentence))}
+
+                topics = list(self.result_dict.values())
+                for contrib_list in topics:
+                    word_list = []
+                    for contirb_tuple in contrib_list:
+                        word_list.append(str(contirb_tuple[1]))
+
+                    present = [word for word in word_list if word in sentence]
+
+                    topic_name = "Topic " + str(topics.index(contrib_list))
+                    current_row[topic_name] = " - ".join(present)
+                rows.append(current_row)
+
+        col_id = str(self.collector_id)
+        path = os.path.join(settings.MEDIA_DIR, str(col_id + "_" + "results.csv"))
+        with open(path, "w", newline='') as results:
+            writer = csv.DictWriter(results, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        self.csv_path = path
 
     def create_visualisations(self):
         """
@@ -404,19 +448,39 @@ class TopicModelling:
 
         self.get_lda_output()
         self.create_highlights()
+        self.create_csv_results()
         viz_path = self.create_visualisations()
         collector = FileCollector.objects.get(collector_id=self.collector_id)
         path = os.path.join(settings.MEDIA_DIR, str(str(self.collector_id)+str('_results.json')))
+        csv_path = self.csv_path
         with open(path, 'w+') as output:
             json.dump(self.result_dict, output)
+
+        id_to_word_path = os.path.join(settings.MEDIA_DIR,
+                                       str(str(self.collector_id)+str('id2word.txt')))
+        with open(id_to_word_path, 'w'):
+            self.structures['id2word'].save_as_text(id_to_word_path)
+
+        corpus_path = os.path.join(settings.MEDIA_DIR,
+                                   str(str(self.collector_id)+str('corpus.txt')))
+        with open(corpus_path, 'w') as corpus_text:
+            corpus_text.write(str(self.structures['corpus']))
 
         self.zip_name = str(str(self.collector_id)+str('_results.zip'))
         zip_path = os.path.join(settings.MEDIA_DIR, self.zip_name)
         with ZipFile(zip_path, 'w') as zip_results:
             zip_results.write(path, str(os.path.basename(str(path))))
             zip_results.write(viz_path, str(os.path.basename(str(viz_path))))
+            zip_results.write(csv_path, str(os.path.basename(str(csv_path))))
+            zip_results.write(id_to_word_path, str(os.path.basename(str(id_to_word_path))))
+            zip_results.write(corpus_path, str(os.path.basename(str(corpus_path))))
+
             os.remove(path)
             os.remove(viz_path)
+            os.remove(csv_path)
+            os.remove(id_to_word_path)
+            os.remove(corpus_path)
+
             for highlight_file in self.highlight_paths:
                 zip_results.write(str(highlight_file)+".pdf",
                                   str(os.path.basename(str(highlight_file)+".pdf")))
