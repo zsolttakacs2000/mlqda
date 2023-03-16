@@ -4,6 +4,7 @@ import os
 import time
 import pandas as pd
 import re
+import csv
 
 from django.conf import settings
 
@@ -163,3 +164,23 @@ def get_test_zip_path(test_object):
     test_zip_path = os.path.join(os.path.relpath(settings.MEDIA_DIR, start=os.curdir),
                                  test_object.zip_name)
     return test_zip_path
+
+
+def calculate_topic_number(data_files_length):
+    if data_files_length < 4:
+        topic_number = 5
+    elif data_files_length < 12:
+        topic_number = data_files_length+1
+    else:
+        topic_number = 12
+    return topic_number
+
+
+def write_sentiemnt_csv_file(collector_id, rows):
+    fields = ['File Name', 'Entry', 'Sentiment Score']
+    path = os.path.join(settings.MEDIA_DIR, str(collector_id + "_" + "results.csv"))
+    with open(path, "w", newline='') as results:
+        writer = csv.DictWriter(results, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+    return path
