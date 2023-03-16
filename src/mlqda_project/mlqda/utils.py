@@ -178,7 +178,7 @@ def calculate_topic_number(data_files_length):
 
 def write_sentiemnt_csv_file(collector_id, rows):
     fields = ['File Name', 'Entry', 'Sentiment Score']
-    path = os.path.join(settings.MEDIA_DIR, str(collector_id + "_" + "results.csv"))
+    path = os.path.join(settings.MEDIA_DIR, str(str(collector_id) + "_" + "results.csv"))
     with open(path, "w", newline='') as results:
         writer = csv.DictWriter(results, fieldnames=fields)
         writer.writeheader()
