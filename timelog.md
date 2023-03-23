@@ -364,3 +364,17 @@
 ### 16 March 2023
 * *0.5 hours* Suprevisor meeting
 * *0.5 hours* Create minutes from meeting
+
+
+## Week 26 (11)
+### 20 March 2023
+* *2.0 hours* Analyse evaluation results
+
+### 21 March 2023
+* *2.0 hours* Write up evaluation results
+
+### 22 March 2023
+* *4.0 hours* Record and edit presentation and demo
+
+### 23 March 2023
+* *3.0 hours* Final checks, organistaion and submission
