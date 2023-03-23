@@ -10,4 +10,4 @@
 8. The user has trouble understanding the output, so they check the About and/or FAQ page again.
 
 ## Userguide
-More information can be found in the [userguides.pdf](insert-link)
+More information can be found in the [userguides.pdf](https://github.com/zsolttakacs2000/mlqda/blob/post-evaluation-tasks/presentation/user_guide.pdf)
