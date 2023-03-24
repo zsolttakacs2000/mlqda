@@ -1,0 +1,272 @@
+---
+title: "mlqda_eval"
+author: "Zsolt Takacs 2472886T"
+date: "17/03/2023"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Set up
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load required libraries
+```{r load libraries, include=FALSE}
+library("tidyverse")
+```
+
+load converted data set
+```{r load dataset, include=FALSE}
+raw_data <- read_csv("MLQDA - Usability Questionnaire (2472886T)(1-13).csv")
+```
+
+
+# Demographic Evaluation
+Select responses related to demographic questions and wrangle into useful formats.
+
+* `demographics_count` is a long formatted count of the responses used for visualisation
+* `deomgraphics_wide_count` is a wide formatted version of the response counts used to create the tables in the dissertation
+```{r select demographic questions}
+demographics_wide <- raw_data %>%
+  select(ID,
+         `I am familiar with different qualitative data analysis methods.`,
+         `I am familiar with Sentiment Analysis.`,
+         `I am familiar with Thematic Analysis.`,
+         `I am familiar with Topic Modelling.`)
+
+demographics_long <- demographics_wide%>%
+  pivot_longer(cols = 2:5, names_to="question", values_to="response") %>%
+  mutate(response = factor(response, levels = c("Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"))) %>%
+  group_by(question, response, .drop = FALSE)
+
+demographics_count <- demographics_long %>%
+  count(.drop=FALSE)
+
+deomgraphics_wide_count <- demographics_long %>%
+  group_by(question, response) %>%
+  summarise(counts = n()) %>%
+  pivot_wider(names_from = response, 
+              values_from = counts)
+
+```
+
+Create visualization about demographic data. Resulting plot is saved in an appropriate aspect ratio.
+```{r visualise demographic data}
+demographics <- ggplot(data = demographics_count, aes(x=question, y=n, fill=response)) +
+  geom_bar(stat="identity", position = position_dodge(width = .75), width = 0.7) +
+  geom_text(aes(label = n), position = position_dodge(width = .75), vjust = -0.5)+
+  scale_x_discrete("I am familiar with...",
+                   drop = FALSE,
+                   labels = c("Qualitative Data Analysis", "Sentiment Analysis", "Thematic Analysis", "Topic Modelling")) +
+  scale_y_continuous("Count", limits = c(0, 7)) +
+  labs(fill="Response",
+       title = "Evaluators' familiarity with the underlying methodologies") +
+  scale_fill_viridis_d() +
+  theme_bw()
+
+demographics
+
+ggsave("demographics.png", demographics, height = 150, width = 300, dpi = 320, units="mm", device = "png")
+
+```
+
+
+# MLQDA specific questions
+Select and wrangle responses given to the system specific questions.
+```{r select MLQDA questions}
+mlqda_specific_questions <- raw_data %>%
+  select(ID,
+         `While completing the tasks, I referred to the FAQ, Guide and/or About sections.`,
+         `While completing the tasks, I found the information on the FAQ page useful.`,
+         `While completing the tasks, I found the information on the About page useful.`,
+         `While completing the tasks, I found the information on the Guide page useful.`,
+         `I found the Sentiment Analysis results clear and useful.`,
+         `I found the Thematic Analysis results based on Topic Modelling clear and useful.`,
+         `I found that the site offers an adequate amount of information for users about the applied machine-learning techniques.`,
+         `I would find updating the results manually an excellent addition to the system.`) %>%
+  pivot_longer(cols = 2:9, names_to="question", values_to="response") %>%
+  mutate(question = factor(question, levels = c("While completing the tasks, I referred to the FAQ, Guide and/or About sections.",
+                                                "While completing the tasks, I found the information on the FAQ page useful.",
+                                                "While completing the tasks, I found the information on the About page useful.",
+                                                "While completing the tasks, I found the information on the Guide page useful.",
+                                                "I found the Sentiment Analysis results clear and useful.",
+                                                "I found the Thematic Analysis results based on Topic Modelling clear and useful.",
+                                                "I found that the site offers an adequate amount of information for users about the applied machine-learning techniques.",
+                                                "I would find updating the results manually an excellent addition to the system.")),
+         response = factor(response, levels = c("Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"))) %>%
+  group_by(question, response, .drop = FALSE)
+
+```
+
+Wide formatted system specific questions
+```{r}
+wide_system_specific <- mlqda_specific_questions %>%
+  summarise(counts = n()) %>%
+  ungroup() %>%
+  pivot_wider(names_from = response, values_from = counts)
+```
+
+Visualise and save system specific responses.
+```{r create and save visualisation}
+system_specific <- ggplot(data = mlqda_specific_questions, aes(x=response, fill=response)) +
+  geom_bar()+
+  scale_fill_viridis_d() +
+  theme_bw() +
+  facet_wrap(~question, nrow = 2) +
+  scale_x_discrete("Response") +
+  scale_y_continuous("Count", breaks = c(0, 2, 4, 6, 8)) +
+  labs(fill="Response",
+       title = "Evaluators' responses to MLQDA Specific Questions") +
+  theme(legend.position = "top")
+
+system_specific
+
+ggsave("system_specific_res.png", system_specific, height = 210, width = 700, dpi = 320, units="mm", device = "png")
+
+```
+
+
+# System Usability Scale Evaluation
+Select responses given to the System Usability Scale.
+```{r select SUS questions}
+system_usability_scale <- raw_data %>%
+  select(ID,
+         `I think that I would like to use this system frequently.`,
+         `I found the system unnecessarily complex.`,
+         `I thought the system was easy to use.`,
+         `I think that I would need the support of a technical person to be able to use this system.`,
+         `I found the various functions in this system were well integrated.`,
+         `I thought there was too much inconsistency in this system.`,
+         `I would imagine that most people would learn to use this system very quickly.`,
+         `I found the system very cumbersome to use.`,
+         `I felt very confident using the system.`,
+         `I needed to learn a lot of things before I could get going with this system.`) %>%
+  pivot_longer(cols = 2:11, names_to="question", values_to="response") %>%
+  mutate(response = factor(response, levels = c("Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree")),
+         question = factor(question, levels = c("I think that I would like to use this system frequently.",
+                                                "I found the system unnecessarily complex.",
+                                                "I thought the system was easy to use.",
+                                                "I think that I would need the support of a technical person to be able to use this system.",
+                                                "I found the various functions in this system were well integrated.",
+                                                "I thought there was too much inconsistency in this system.",
+                                                "I would imagine that most people would learn to use this system very quickly.",
+                                                "I found the system very cumbersome to use.",
+                                                "I felt very confident using the system.",
+                                                "I needed to learn a lot of things before I could get going with this system.")))
+
+```
+
+Recode responses from strings to integers according to guidance. Half the questions are negatively scored.
+```{r recode sus scores}
+positive_sus_questions <- c("I think that I would like to use this system frequently.",
+                "I thought the system was easy to use.",
+                "I found the various functions in this system were well integrated.",
+                "I would imagine that most people would learn to use this system very quickly.",
+                "I felt very confident using the system.")
+
+negative_sus_questions <- c("I found the system unnecessarily complex.",
+                            "I think that I would need the support of a technical person to be able to use this system.",
+                            "I thought there was too much inconsistency in this system.",
+                            "I found the system very cumbersome to use.",
+                            "I needed to learn a lot of things before I could get going with this system.")
+
+recode_to_values <- function(new_x) {
+  return(recode(new_x,
+                "Strongly Disagree" = 0,
+                "Disagree" = 1,
+                "Neutral" = 2,
+                "Agree" = 3,
+                "Strongly Agree" = 4))
+}
+
+recode_to_neg_values <- function(new_x) {
+  return(recode(new_x,
+                "Strongly Disagree" = 4,
+                "Disagree" = 3,
+                "Neutral" = 2,
+                "Agree" = 1,
+                "Strongly Agree" = 0))
+}
+
+
+converted_sus <- system_usability_scale %>%
+  mutate(response_recoded = if_else(question %in% positive_sus_questions, true=recode_to_values(response), false=recode_to_neg_values(response)))
+```
+
+Calculate SUS results from recoded data.
+```{r calculate sus scores}
+sus_scores <- converted_sus %>%
+  ungroup() %>%
+  group_by(ID) %>%
+  summarise(sum_sus_scores = sum(response_recoded)*2.5)
+
+wide_sus_score <- converted_sus %>%
+  select(-response) %>%
+  pivot_wider(names_from = question,
+              values_from = response_recoded) %>%
+  setNames(c("ID", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10")) %>%
+  mutate(total = Q1+Q2+Q3+Q4+Q5+Q6+Q7+Q8+Q8+Q10,
+         sus_score = total*2.5)
+
+sus_summary <- wide_sus_score %>%
+  summarise(mean_sus = mean(sus_score),
+            sd_sus = sd(sus_score))
+
+wide_sus_score
+```
+
+Visualise SUS results.
+```{r visualise sus counts}
+sus_count <- system_usability_scale %>%
+  count(.drop=FALSE)
+
+sus_counts <- ggplot(data = system_usability_scale, aes(x=response, fill=response)) +
+  geom_bar(width = 0.7) +
+  scale_y_continuous("Count", breaks = c(0, 2, 4, 6, 8)) +
+  labs(fill="Response",
+       title = "Evaluators' responses to the System Usability Scale") +
+  scale_fill_viridis_d() +
+  theme_bw() +
+  facet_wrap(~question, ncol = 1) +
+  scale_x_discrete("Response")
+
+ggsave("sus_count_res.png", sus_counts, width = 210, height = 297, dpi = 320, units="mm", device = "png")
+
+```
+
+```{r visualise all calculated scores}
+sus_bars <- ggplot(data=sus_scores, aes(x=ID, y=sum_sus_scores)) +
+  geom_col(fill="#440154", aes(alpha=.9), show.legend = FALSE) +
+  geom_line(mapping = aes(y=68), color="#fde725", size=1.7, show.legend = FALSE) +
+  scale_x_discrete("Evaluators")+
+  scale_y_continuous("Calculated SUS scores")+
+  theme_bw()
+
+sus_bars
+
+ggsave("sus_barchart.png", sus_bars, height = 150, width = 300, dpi = 320, units="mm", device = "png")
+
+```
+
+```{r}
+sus_violin <- sus_scores %>%
+  mutate(type="sus")
+
+sus_violinplot <- ggplot(data = sus_violin, aes(x=type, y=sum_sus_scores, fill=type)) +
+  geom_violin(aes(alpha=0.5), show.legend = FALSE, fill="#3b528b") +
+  geom_boxplot(width=0.2, fill="#3b528b", outlier.colour = "red") +
+  geom_jitter(data= filter(sus_violin, sum_sus_scores>50), width=0.05) +
+  theme_bw() +
+  theme(legend.position = "none", ) +
+  scale_y_continuous(limits = c(40, 100)) +
+  scale_x_discrete(labels=c(""), "System Usability Scale") +
+  scale_y_continuous("Calcultaed SUS scores (0-100)")
+
+sus_violinplot
+
+ggsave("sus_violin.png", sus_violinplot, height = 150, width = 200, dpi = 320, units="mm", device = "png")
+```
+
