@@ -1,0 +1,2 @@
+## Status Report
+This folder contains the files related to the Status Report submitted in December 2022. The submitted versions can be found in `ProgressReport_ZsoltTakacs_2472886T.pdf` and `ProgressReport.docx`.

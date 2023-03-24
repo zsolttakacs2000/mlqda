@@ -1,4 +1,7 @@
 # Presentation
-
-Include your presentation slides here. You should include the slides in the original format you authored them in (e.g. PowerPoint, Keynote), *and*
-a `pdf` version of the slides. Any necessary videos, audio, images, figures, etc. should be present.
+This folder contains resources to present the system.
+* `2472886t_presentation.pptx` a power point presentation about the entire work
+* `2472886t_presentation.pdf` a pdf version of the previous presentation
+* `example_sentiment_analysis_results.zip` an example set of sentiment analysis results
+* `example_topic_modelling_results.zip` an example set of topic modelling results
+* `user_guide.pdf` a pdf to guide first time users and document the system's capabilities. 
