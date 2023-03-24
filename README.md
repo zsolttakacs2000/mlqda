@@ -1,26 +1,24 @@
-# Guidance
-This is a suggested template for a project. You can modify it as you please, but
-but remember to keep:
+# MLQDA ReadMe
 
-* a timelog, updated regularly in the `timelog.md` format;
-* all source under version control;
-* data well organised and with appropriate ethical approval (for human subject data);
+## Pipeline results
+|  Scope | Result |
+| ------------- | ------------- |
+| Overall Repository | [![Build Status](https://github.com/zsolttakacs2000/mlqda/actions/workflows/django.yml/badge.svg)](https://github.com/zsolttakacs2000/mlqda/actions/workflows/django.yml)  |
+| Main Branch | [![Build Status](https://github.com/zsolttakacs2000/mlqda/actions/workflows/django.yml/badge.svg?branch=main)](https://github.com/zsolttakacs2000/mlqda/actions/workflows/django.yml?query=branch%3Amain) |
+| Development Branch  | [![Build Status](https://github.com/zsolttakacs2000/mlqda/actions/workflows/django.yml/badge.svg?branch=dev)](https://github.com/zsolttakacs2000/mlqda/actions/workflows/django.yml?query=branch%3Adev)  |
+
+
+## Introduction
+This is the repository used to keep track of all the related files for my fourth-year Computing Science Dissertation and Individual Project at the University of Glasgow titled: "MLQDA: Machine Learning for Qualitative Data Analysis."
 
 Here's an overview of the structure as it stands:
-
-* `timelog.md` The time log for your project.
-* `plan.md` A skeleton week-by-week plan for the project. 
-* `data/` data you acquire during the project
+* `.github/workflows/django.yml` GitHub CI pipeline for builds and tests
+* `data/` data acquired during the project evaluation
 * `design/` files related to prototyping and wireframing
+* `dissertation/` latex and pdf version of the project dissertation
+* `meetings/` records of the meetings you have during the project.
+* `presentation/` files related to the final presentation of the project
 * `src/` source code for your project
 * `status_report/` the status report submitted in December
-* `meetings/` Records of the meetings you have during the project.
-* `dissertation/` source and for your project dissertation
-* `presentation/` your presentation
-
-* Make sure you add a `.gitignore` or similar for your VCS for the tools you are using!
-* Add any appropriate continuous integration (e.g. Travis CI) in this directory.
-
-## Important
-* It should be easy to rebuild and run your project and your dissertation
-        * Include clear instructions in the relevant directories to make this possible
+* `timeline.pdf` proposed outline for the project
+* `timelog.md` the time log for the project.
